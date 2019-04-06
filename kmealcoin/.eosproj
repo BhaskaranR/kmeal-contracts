@@ -1,0 +1,16 @@
+{
+  "main": "kmeal.token.cpp",
+  "contract": "kmealcoin",
+  "include": "",
+  "cdt": "",
+  "output": "",
+  "scripts": {
+    "build": ""
+  },
+  "deploy": {
+    "mainnet": "",
+    "kylin": "",
+    "jungle": "",
+    "local": ""
+  }
+}
