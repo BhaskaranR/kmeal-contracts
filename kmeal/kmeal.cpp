@@ -234,29 +234,28 @@ void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t  itemid, 
   auto i_iter = items.find(itemid);
   eosio_assert(i_iter != items.end(), "itemid not found");
   require_auth(i_iter->owner);
-
-  //check if the book has the sectionid
- // auto sectionid_itr = find_if(iter->sections.begin(),  iter->sections.end(), [&myString](const Type& obj) {return obj.sectionid== sectionid;})
-
-  auto sectionid_itr = find (iter->sections.begin(), iter->sections.end(), sectionid);
-  
-  eosio_assert (sectionid_itr != iter->sections.end(), "section not found");
-
-  //eosio::eosio_assert (sortorder > sectionid_itr->items.size(), sort order greater than length");
-  vector<uint64_t> items = sectionid_itr->items;
-  auto itemid_itr = std::find (items.begin(), items.end(), itemid);
-  if (itemid_itr != items.end()) {
-     if (sortorder > items.size()){
-      items.push_back(itemid);
-     } else { 
-      items.insert(items.begin() + sortorder, itemid);
-     }
-  } else {
-     items.erase(items.begin() + index);
-     items.insert(items.begin() + sortorder, itemid);
-  }
+  //loop through sections
+  auto sections = iter->sections;
+  for (int r = 0; r < sections.size(); r++) {
+     if(sections[r].section_id == sectionid) {
+        vector<uint64_t> items =sections[r].items;
+        auto itemid_itr = std::find (items.begin(), items.end(), itemid);
+        if (itemid_itr != items.end()) {
+           if (sortorder > items.size()){
+            items.push_back(itemid);
+           } else { 
+            items.insert(items.begin() + sortorder, itemid);
+           }
+        } else {
+           items.erase(items.begin() + sortorder);
+           items.insert(items.begin() + sortorder, itemid);
+        }
+        break;
+      }
+    }
 }
-
+    
+  
 
 void kmeal::listitem(
       uint64_t     item_id,
@@ -324,6 +323,7 @@ void kmeal::depositkmeal(name from, name to, asset quantity, std::string memo)
         row.balance += quantity;
     });
 }
+
 
 
 // This function requires giving the active permission to the eosio.code permission
