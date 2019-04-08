@@ -132,6 +132,48 @@ CONTRACT kmeal : public contract {
     
     typedef multi_index<"listing"_n, listing> listings_table;
     
+    struct  [[eosio::table, eosio::contract("kmeal")]]  order_detail { 
+      uint64_t  listing_id;
+      uint64_t  quantity;
+      float     ordered_price;
+      char      listing_type;
+      string    instructions;
+    };
+    
+    struct  [[eosio::table, eosio::contract("kmeal")]]  order {
+      uint64_t   order_id;
+      name       buyer; 
+      name       restaurant_id;
+      float      price;
+      
+      uint64_t   order_status;
+      string     instructions;
+      vector<order_detail> detail;
+      
+      uint64_t     primary_key() const { return order_id; }
+      
+   //   EOSLIB_SERIALIZE(order, (order_id)(buyer)(restaurant_id)(price)(instructions)(order_status)(detail));
+    };
+    
+    typedef multi_index<"order"_n, order> order_table;
+    
+    
+    struct  [[eosio::table, eosio::contract("kmeal")]]  dporder {
+      uint64_t   order_id;
+      name       buyer; 
+      name       restaurant_id;
+      float      bid_price;
+      string     instructions;
+      
+      vector<order_detail> detail;
+      
+      uint64_t     primary_key() const { return order_id; }
+      
+  //    EOSLIB_SERIALIZE(order, (order_id)(buyer)(restaurant_id)(bid_price)(instructions)(detail));
+    };
+    
+    typedef multi_index<"dporder"_n, dporder> dporder_table;
+    
     
     void transfer_kmeal(name from, name to, asset quantity, std::string memo);
     
@@ -141,6 +183,8 @@ CONTRACT kmeal : public contract {
     listings_table listings;
     restaurants_table restaurants;
     accounts_table accounts;
+    order_table    orders;
+    dporder_table  dporders;
     
   public:
     
@@ -151,7 +195,12 @@ CONTRACT kmeal : public contract {
       items(self, self.value),
       books(self, self.value),
       listings(self, self.value),
-      restaurants(self,self.value) {}
+      restaurants(self,self.value),
+      orders(self, self.value),
+      dporders(self, self.value)
+      {
+        
+      }
       
     template <typename T>
     void cleanTable(){

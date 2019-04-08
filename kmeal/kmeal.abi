@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Apr  7 22:32:19 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr  8 15:09:14 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -206,6 +206,36 @@
             ]
         },
         {
+            "name": "dporder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "restaurant_id",
+                    "type": "name"
+                },
+                {
+                    "name": "bid_price",
+                    "type": "float32"
+                },
+                {
+                    "name": "instructions",
+                    "type": "string"
+                },
+                {
+                    "name": "detail",
+                    "type": "order_detail[]"
+                }
+            ]
+        },
+        {
             "name": "edititem",
             "base": "",
             "fields": [
@@ -406,6 +436,66 @@
                 {
                     "name": "owner",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "order",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "restaurant_id",
+                    "type": "name"
+                },
+                {
+                    "name": "price",
+                    "type": "float32"
+                },
+                {
+                    "name": "order_status",
+                    "type": "uint64"
+                },
+                {
+                    "name": "instructions",
+                    "type": "string"
+                },
+                {
+                    "name": "detail",
+                    "type": "order_detail[]"
+                }
+            ]
+        },
+        {
+            "name": "order_detail",
+            "base": "",
+            "fields": [
+                {
+                    "name": "listing_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "quantity",
+                    "type": "uint64"
+                },
+                {
+                    "name": "ordered_price",
+                    "type": "float32"
+                },
+                {
+                    "name": "listing_type",
+                    "type": "int8"
+                },
+                {
+                    "name": "instructions",
+                    "type": "string"
                 }
             ]
         },
@@ -679,8 +769,29 @@
             "key_types": []
         },
         {
+            "name": "dporder",
+            "type": "dporder",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "listing",
             "type": "listing",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "order",
+            "type": "order",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "order_detail",
+            "type": "order_detail",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

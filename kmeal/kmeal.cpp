@@ -285,9 +285,10 @@ void kmeal::listitem(
     bool itemfound = false;
     for (int r = 0; r < sections.size(); r++) {
      if(sections[r].section_id == section_id) {
-       
-        // sectionfound = true;
-        //auto item = eosio::find(sections[r].items,item_id);
+       // todo
+       // check if the item is added to the section
+       // sectionfound = true;
+       // auto item = eosio::find(sections[r].items,item_id);
      }
     }
     // get the listings and update
