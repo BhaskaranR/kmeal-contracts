@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Apr  7 13:57:53 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Apr  7 22:32:19 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -274,6 +274,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "book_id",
+                    "type": "uint64"
+                },
+                {
                     "name": "item_id",
                     "type": "uint64"
                 },
@@ -294,20 +298,16 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "start_time",
-                    "type": "uint32"
-                },
-                {
-                    "name": "end_time",
-                    "type": "uint32"
-                },
-                {
                     "name": "duration",
                     "type": "uint32"
                 },
                 {
                     "name": "sliding_rate",
                     "type": "uint64"
+                },
+                {
+                    "name": "expires",
+                    "type": "time_point_sec"
                 },
                 {
                     "name": "status",
@@ -350,6 +350,10 @@
             "base": "",
             "fields": [
                 {
+                    "name": "book_id",
+                    "type": "uint64"
+                },
+                {
                     "name": "item_id",
                     "type": "uint64"
                 },
@@ -370,20 +374,12 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "start_time",
-                    "type": "uint32"
-                },
-                {
-                    "name": "end_time",
-                    "type": "uint32"
-                },
-                {
                     "name": "duration",
                     "type": "uint32"
                 },
                 {
                     "name": "expires",
-                    "type": "time_point_sec"
+                    "type": "uint32"
                 },
                 {
                     "name": "sliding_rate",

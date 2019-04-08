@@ -258,29 +258,57 @@ void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t  itemid, 
   
 
 void kmeal::listitem(
-      uint64_t     item_id,
-      uint64_t     section_id,
-      float        list_price,
-      float        min_price,
-      uint64_t     quantity,
-      uint32_t     start_time, // start from
-      uint32_t     end_time, // start from
-      uint32_t     duration, // event duration
-      time_point_sec expires,    
-      uint64_t     sliding_rate,
-      uint64_t     status,
-      vector<listing_sides>   sides,
-      bool         isactive
-      ) {
-          auto _item = items.find(item_id);
-          eosio_assert(_item != items.end(), "restaurant owner not found");
-          require_auth(_item->owner.value);
-          
-          auto _listings = listings.find(_item->owner.value);
-          if( _listings == listings.end() ) {
-            listings.emplace(_self, [&]( auto& s ) {
-            });
-          }
+  uint64_t     book_id,
+  uint64_t     item_id,
+  uint64_t     section_id,
+  float        list_price,
+  float        min_price,
+  uint64_t     quantity,
+  uint32_t     duration, // event duration
+  uint32_t expires,    
+  uint64_t     sliding_rate,
+  uint64_t     status,
+  vector<listing_sides>   sides,
+  bool         isactive
+) {
+    //auth the owner of the item
+    auto _item = items.find(item_id);
+    eosio_assert(_item != items.end(), "restaurant owner not found");
+    require_auth(_item->owner.value);
+    
+    auto _book = books.find(book_id);
+    eosio_assert(_book != books.end(), "book not found");
+    require_auth(_book->owner.value);
+
+    auto sections = _book->sections;
+    bool sectionfound = false;
+    bool itemfound = false;
+    for (int r = 0; r < sections.size(); r++) {
+     if(sections[r].section_id == section_id) {
+       
+        // sectionfound = true;
+        //auto item = eosio::find(sections[r].items,item_id);
+     }
+    }
+    // get the listings and update
+    auto _listings = listings.find(_item->owner.value);
+    if( _listings == listings.end() ) {
+      listings.emplace(_self, [&]( auto& s ) {
+          s.listing_id = listings.available_primary_key();
+          s.book_id = book_id;
+          s.item_id = item_id;
+          s.section_id= section_id;
+          s.list_price = list_price;
+          s.min_price = min_price;
+          s.quantity = quantity;
+          s.duration = duration;
+          s.expires = time_point_sec(now()) +  expires;
+          s.sliding_rate = sliding_rate;
+          s.status = status;
+          s.sides = sides;
+          s.isactive =1;
+      });
+    } 
 }
 
 void kmeal::opendeposit(name owner)

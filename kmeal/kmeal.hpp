@@ -77,14 +77,12 @@ CONTRACT kmeal : public contract {
     
     typedef multi_index<"item"_n, item> items_table;
     
-    
     struct section {
-      uint64_t         section_id;       
+      uint64_t         section_id;
       string           section_name;
-      vector<uint64_t> items;  
+      vector<uint64_t> items;
       uint64_t         primary_key() const { return section_id; }
     };
-    
     
     struct [[eosio::table, eosio::contract("kmeal")]]  book {
       uint64_t        book_id;
@@ -94,7 +92,7 @@ CONTRACT kmeal : public contract {
       
       uint64_t         primary_key() const { return book_id; }
       
-      EOSLIB_SERIALIZE(book, (owner)(book_id)(book_name)(sections))
+      
     };
     
     typedef multi_index<"book"_n, book> books_table;
@@ -109,26 +107,27 @@ CONTRACT kmeal : public contract {
     struct  [[eosio::table, eosio::contract("kmeal")]]  listing {
       name         owner; 
       uint64_t     listing_id;
+      uint64_t     book_id;
       uint64_t     item_id;
       uint64_t     section_id;
       float        list_price;
       float        min_price;
       uint64_t     quantity;
-      uint32_t     start_time    = 0; // start from
-      uint32_t     end_time    = 0; // start from
       uint32_t     duration = 0; // event duration
       uint64_t     sliding_rate;
+      time_point_sec expires; 
       uint64_t     status;
       vector<listing_sides>   sides;
       bool         isactive;
       
       uint64_t     primary_key() const { return listing_id; }
       
-      uint32_t get_end() const { return start_time + duration; }
 
-      bool is_dp_period(uint32_t now) const { return (start_time <= now) && (now < get_end()); }
+      // bool is_dp_period(uint32_t now) const { return (start_time <= now) && (now < get_end()); }
+      
+      uint64_t get_expires()const { return expires.utc_seconds; }
   
-      EOSLIB_SERIALIZE(listing, (owner)(listing_id)(item_id)(list_price)(min_price)(quantity)(start_time)(end_time)(duration)(sliding_rate)(status)(sides)(isactive));
+      EOSLIB_SERIALIZE(listing, (owner)(listing_id)(book_id)(item_id)(list_price)(min_price)(quantity)(duration)(sliding_rate)(status)(sides)(isactive));
     };
     
     typedef multi_index<"listing"_n, listing> listings_table;
@@ -215,15 +214,14 @@ CONTRACT kmeal : public contract {
     ACTION addtosection(uint64_t bookid, uint64_t sectionid, uint64_t  itemid, uint64_t  sortorder);
     
     ACTION listitem(
+      uint64_t     book_id,
       uint64_t     item_id,
       uint64_t     section_id,
       float        list_price,
       float        min_price,
       uint64_t     quantity,
-      uint32_t     start_time, // start from
-      uint32_t     end_time, // start from
       uint32_t     duration, // event duration
-      time_point_sec expires,    
+      uint32_t expires,    
       uint64_t     sliding_rate,
       uint64_t     status,
       vector<listing_sides>   sides,
