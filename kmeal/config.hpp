@@ -6,5 +6,5 @@
 #define DEFAULT_SYMBOL symbol("KMEAL", 4)
 #define KMEAL_ACCOUNT "kmealcoinacc"_n
 
-
+#define DAY_SEC = 24*3600;
 #endif

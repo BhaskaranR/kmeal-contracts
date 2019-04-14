@@ -25,7 +25,8 @@ CONTRACT kmeal : public contract {
 
     struct [[eosio::table, eosio::contract("kmeal")]]  restaurant
     {
-        name owner; 
+        uint64_t restaurant_id;
+        name owner;
         string name;
         string description;
         string phone;
@@ -44,10 +45,11 @@ CONTRACT kmeal : public contract {
         
         uint64_t primary_key() const { return owner.value; }
     
-        EOSLIB_SERIALIZE(restaurant, (owner)(name)(description)(phone)(rating)(address)(address2)(city)(state)(postalCode)(latitude)(longitude)(logo)(timeofoperation)(categories)(is_active))
+        // EOSLIB_SERIALIZE(restaurant, (owner)(name)(description)(phone)(rating)(address)(address2)(city)(state)(postalCode)(latitude)(longitude)(logo)(timeofoperation)(categories)(is_active))
     };
 
-    typedef multi_index<"restaurants"_n, restaurant> restaurants_table;
+    typedef multi_index<"restaurants"_n, restaurant
+    > restaurants_table;
     
     struct [[eosio::table, eosio::contract("kmeal")]]  deposit {
         name owner;
@@ -56,7 +58,7 @@ CONTRACT kmeal : public contract {
         uint64_t primary_key() const { return owner.value; }
     };
 
-    typedef multi_index<"deposit"_n, deposit> deposit_table;
+    typedef multi_index<"deposits"_n, deposit> deposit_table;
     
     struct item {
       name             owner;
@@ -72,10 +74,10 @@ CONTRACT kmeal : public contract {
       uint64_t         primary_key() const { return item_id; }
       
       //secondary key index todo
-      EOSLIB_SERIALIZE(item, (item_id)(item_name)(description)(photo)(spicy_level)(vegetarian)(cooking_time)(types))
+      //EOSLIB_SERIALIZE(item, (item_id)(item_name)(description)(photo)(spicy_level)(vegetarian)(cooking_time)(types))
     };
     
-    typedef multi_index<"item"_n, item> items_table;
+    typedef multi_index<"items"_n, item> items_table;
     
     struct section {
       uint64_t         section_id;
@@ -91,11 +93,9 @@ CONTRACT kmeal : public contract {
       vector<section> sections;
       
       uint64_t         primary_key() const { return book_id; }
-      
-      
     };
     
-    typedef multi_index<"book"_n, book> books_table;
+    typedef multi_index<"books"_n, book> books_table;
     
     struct listing_sides {
       uint64_t   item_id;
@@ -107,6 +107,7 @@ CONTRACT kmeal : public contract {
     struct  [[eosio::table, eosio::contract("kmeal")]]  listing {
       name         owner; 
       uint64_t     listing_id;
+      char         list_type;
       uint64_t     book_id;
       uint64_t     item_id;
       uint64_t     section_id;
@@ -122,69 +123,57 @@ CONTRACT kmeal : public contract {
       
       uint64_t     primary_key() const { return listing_id; }
       
+      uint64_t get_expires() const { return expires.utc_seconds; }
+      uint128_t get_price() const { return list_price; }
 
-      // bool is_dp_period(uint32_t now) const { return (start_time <= now) && (now < get_end()); }
-      
-      uint64_t get_expires()const { return expires.utc_seconds; }
-  
-      EOSLIB_SERIALIZE(listing, (owner)(listing_id)(book_id)(item_id)(list_price)(min_price)(quantity)(duration)(sliding_rate)(status)(sides)(isactive));
     };
     
-    typedef multi_index<"listing"_n, listing> listings_table;
+    typedef multi_index<"listings"_n, listing,
+      indexed_by<"expires"_n, const_mem_fun<listing, uint64_t, &listing::get_expires>>,
+      indexed_by< "byprice"_n, const_mem_fun< listing, uint128_t, &listing::get_price>>
+    > listings_table;
     
-    struct  [[eosio::table, eosio::contract("kmeal")]]  order_detail { 
+    struct  [[eosio::table, eosio::contract("kmeal")]]  orderdetail { 
+      uint64_t  order_detail_id;
       uint64_t  listing_id;
       uint64_t  quantity;
       float     ordered_price;
+      float     final_price;
       char      listing_type;
       string    instructions;
+      
+      uint64_t  primary_key() const { return order_detail_id; }
+      uint64_t  by_listing_id() const { return listing_id; }
     };
     
-    struct  [[eosio::table, eosio::contract("kmeal")]]  order {
-      uint64_t   order_id;
-      name       buyer; 
-      name       restaurant_id;
-      float      price;
-      
-      uint64_t   order_status;
-      string     instructions;
-      vector<order_detail> detail;
-      
-      uint64_t     primary_key() const { return order_id; }
-      
-   //   EOSLIB_SERIALIZE(order, (order_id)(buyer)(restaurant_id)(price)(instructions)(order_status)(detail));
-    };
+  typedef multi_index<"orderdetails"_n, orderdetail, 
+    indexed_by<"bylistingid"_n,
+        const_mem_fun<orderdetail, uint64_t, &orderdetail::by_listing_id>>> orderdetail_table;
+  
+  struct  [[eosio::table, eosio::contract("kmeal")]]  order {
+    uint64_t   order_id;
+    name       buyer; 
+    name       seller;
+    uint64_t   order_status;
+    string     instructions;
+    vector<uint64_t> detail;
+    uint64_t    primary_key() const { return order_id; }
+    uint64_t    by_buyer() const { return buyer.value; }
+  };
     
-    typedef multi_index<"order"_n, order> order_table;
+  typedef multi_index<"orders"_n, order, 
+     indexed_by<"bybuyer"_n,  const_mem_fun<order, uint64_t, &order::by_buyer>>> order_table;
     
+  void transfer_kmeal(name from, name to, asset quantity, std::string memo);
     
-    struct  [[eosio::table, eosio::contract("kmeal")]]  dporder {
-      uint64_t   order_id;
-      name       buyer; 
-      name       restaurant_id;
-      float      bid_price;
-      string     instructions;
-      
-      vector<order_detail> detail;
-      
-      uint64_t     primary_key() const { return order_id; }
-      
-  //    EOSLIB_SERIALIZE(order, (order_id)(buyer)(restaurant_id)(bid_price)(instructions)(detail));
-    };
-    
-    typedef multi_index<"dporder"_n, dporder> dporder_table;
-    
-    
-    void transfer_kmeal(name from, name to, asset quantity, std::string memo);
-    
-    items_table items;
-    deposit_table deposits;
-    books_table books;
-    listings_table listings;
-    restaurants_table restaurants;
-    accounts_table accounts;
-    order_table    orders;
-    dporder_table  dporders;
+  items_table items;
+  deposit_table deposits;
+  books_table books;
+  listings_table listings;
+  restaurants_table restaurants;
+  accounts_table accounts;
+  order_table    orders;
+  orderdetail_table orderdetails;
     
   public:
     
@@ -196,11 +185,9 @@ CONTRACT kmeal : public contract {
       books(self, self.value),
       listings(self, self.value),
       restaurants(self,self.value),
-      orders(self, self.value),
-      dporders(self, self.value)
-      {
-        
-      }
+      orders(self, self.value)  ,
+      orderdetails(self, self.value)
+      {}
       
     template <typename T>
     void cleanTable(){
@@ -266,16 +253,19 @@ CONTRACT kmeal : public contract {
       uint64_t     book_id,
       uint64_t     item_id,
       uint64_t     section_id,
+      char         list_type,
       float        list_price,
       float        min_price,
       uint64_t     quantity,
       uint32_t     duration, // event duration
-      uint32_t expires,    
+      uint32_t     expires,    
       uint64_t     sliding_rate,
       uint64_t     status,
       vector<listing_sides>   sides,
       bool         isactive
       );
+    
+    ACTION placeorder( uint64_t  order_id, name  buyer, name seller,   uint64_t order_status, string  instructions, vector<orderdetail> detail);
     
     ACTION opendeposit(name owner);
 

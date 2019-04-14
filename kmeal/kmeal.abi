@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr  8 15:09:14 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Apr 14 19:47:59 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -206,36 +206,6 @@
             ]
         },
         {
-            "name": "dporder",
-            "base": "",
-            "fields": [
-                {
-                    "name": "order_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "buyer",
-                    "type": "name"
-                },
-                {
-                    "name": "restaurant_id",
-                    "type": "name"
-                },
-                {
-                    "name": "bid_price",
-                    "type": "float32"
-                },
-                {
-                    "name": "instructions",
-                    "type": "string"
-                },
-                {
-                    "name": "detail",
-                    "type": "order_detail[]"
-                }
-            ]
-        },
-        {
             "name": "edititem",
             "base": "",
             "fields": [
@@ -302,6 +272,10 @@
                 {
                     "name": "listing_id",
                     "type": "uint64"
+                },
+                {
+                    "name": "list_type",
+                    "type": "int8"
                 },
                 {
                     "name": "book_id",
@@ -392,6 +366,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "list_type",
+                    "type": "int8"
+                },
+                {
                     "name": "list_price",
                     "type": "float32"
                 },
@@ -452,12 +430,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "restaurant_id",
+                    "name": "seller",
                     "type": "name"
-                },
-                {
-                    "name": "price",
-                    "type": "float32"
                 },
                 {
                     "name": "order_status",
@@ -469,14 +443,18 @@
                 },
                 {
                     "name": "detail",
-                    "type": "order_detail[]"
+                    "type": "uint64[]"
                 }
             ]
         },
         {
-            "name": "order_detail",
+            "name": "orderdetail",
             "base": "",
             "fields": [
+                {
+                    "name": "order_detail_id",
+                    "type": "uint64"
+                },
                 {
                     "name": "listing_id",
                     "type": "uint64"
@@ -490,6 +468,10 @@
                     "type": "float32"
                 },
                 {
+                    "name": "final_price",
+                    "type": "float32"
+                },
+                {
                     "name": "listing_type",
                     "type": "int8"
                 },
@@ -500,9 +482,43 @@
             ]
         },
         {
+            "name": "placeorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "seller",
+                    "type": "name"
+                },
+                {
+                    "name": "order_status",
+                    "type": "uint64"
+                },
+                {
+                    "name": "instructions",
+                    "type": "string"
+                },
+                {
+                    "name": "detail",
+                    "type": "orderdetail[]"
+                }
+            ]
+        },
+        {
             "name": "restaurant",
             "base": "",
             "fields": [
+                {
+                    "name": "restaurant_id",
+                    "type": "uint64"
+                },
                 {
                     "name": "owner",
                     "type": "name"
@@ -736,6 +752,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "placeorder",
+            "type": "placeorder",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setsecorder",
             "type": "setsecorder",
             "ricardian_contract": ""
@@ -755,43 +776,36 @@
             "key_types": []
         },
         {
-            "name": "book",
+            "name": "books",
             "type": "book",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "deposit",
+            "name": "deposits",
             "type": "deposit",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "dporder",
-            "type": "dporder",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "listing",
+            "name": "listings",
             "type": "listing",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "order",
-            "type": "order",
+            "name": "orderdetails",
+            "type": "orderdetail",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "order_detail",
-            "type": "order_detail",
+            "name": "orders",
+            "type": "order",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

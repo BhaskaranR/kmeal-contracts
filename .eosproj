@@ -1,0 +1,15 @@
+{
+  "main": "kmeal.cpp",
+  "contract": "kmeal",
+  "include": "",
+  "output": "",
+  "scripts": {
+    "build": ""
+  },
+  "deploy": {
+    "mainnet": "",
+    "kylin": "",
+    "jungle": "",
+    "local": ""
+  }
+}
