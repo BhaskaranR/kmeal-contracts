@@ -393,7 +393,7 @@ void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,
           }
           //loop orderdetail and insert..
           auto length = detail.size();
-          vector<uint32_t> detail_ids;
+          vector<uint64_t> detail_ids;
           
           for(int index = 1; index < length; index++) {
             auto key = orderdetails.available_primary_key();
@@ -407,16 +407,15 @@ void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,
               s.instructions = detail[index].instructions;
             });
             if (detail[index].listing_type == 'D') {
-              vector<uint32_t> detail;
-              detail.push_back(key);
-              orders.emplace(_self, [&]( auto& s ) {
+              orders.emplace(_self, [&]( order& s ) {
                 s.order_id = orders.available_primary_key();
                 s.buyer = buyer;
                 s.seller = seller;
                 s.flags |= BUYER_ORDERED_FLAG; 
                 s.instructions = instructions;
-                s.detail = detail;
+                s.detail.push_back(key);
               });
+              
             } else {
               detail_ids.push_back(key);
             }
@@ -428,7 +427,7 @@ void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,
                   s.seller = seller;
                   s.flags |= BUYER_ORDERED_FLAG; 
                   s.instructions = instructions;
-                  s.detail = detail_ids;
+                  s.detail = detail_ids; 
                 });
           }
           

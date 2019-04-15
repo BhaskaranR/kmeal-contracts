@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Apr 14 21:16:57 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 15 12:16:52 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -438,6 +438,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "flags",
+                    "type": "uint16"
+                },
+                {
                     "name": "instructions",
                     "type": "string"
                 },
@@ -496,10 +500,6 @@
                 {
                     "name": "seller",
                     "type": "name"
-                },
-                {
-                    "name": "order_status",
-                    "type": "uint64"
                 },
                 {
                     "name": "instructions",
