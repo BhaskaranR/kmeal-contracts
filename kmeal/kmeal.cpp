@@ -344,7 +344,6 @@ void kmeal::listitem(
 }
 
 void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,  
-      uint64_t order_status, 
       string  instructions,
       vector<orderdetail> detail) {
       
@@ -363,7 +362,7 @@ void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,
                     
       for (auto &det : detail) // access by reference to avoid copying
       {   
-           auto listing_id = det.listing_id;
+          auto listing_id = det.listing_id;
           auto _listing = listings.find(listing_id);
           eosio_assert(_listing != listings.end(), "listing not found"); 
           eosio_assert(_listing->owner != _restaurant->owner, "listing not found from the restaurant");
@@ -390,8 +389,53 @@ void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,
           }
           else {
             // check for restaurant timing.. check if you could time the order
-            
+            eosio::print(_restaurant->timeofoperation);
           }
+          //loop orderdetail and insert..
+          auto length = detail.size();
+          vector<uint32_t> detail_ids;
+          
+          for(int index = 1; index < length; index++) {
+            auto key = orderdetails.available_primary_key();
+            orderdetails.emplace(_self, [&]( auto& s ) {
+              s.order_detail_id = key;
+              s.listing_id = detail[index].listing_id;
+              s.quantity = detail[index].quantity;
+              s.ordered_price = detail[index].ordered_price;
+              s.final_price = detail[index].final_price;
+              s.listing_type = detail[index].listing_type;
+              s.instructions = detail[index].instructions;
+            });
+            if (detail[index].listing_type == 'D') {
+              vector<uint32_t> detail;
+              detail.push_back(key);
+              orders.emplace(_self, [&]( auto& s ) {
+                s.order_id = orders.available_primary_key();
+                s.buyer = buyer;
+                s.seller = seller;
+                s.flags |= BUYER_ORDERED_FLAG; 
+                s.instructions = instructions;
+                s.detail = detail;
+              });
+            } else {
+              detail_ids.push_back(key);
+            }
+          }
+          if (detail_ids.size() > 1) {
+              orders.emplace(_self, [&]( auto& s ) {
+                  s.order_id = orders.available_primary_key();
+                  s.buyer = buyer;
+                  s.seller = seller;
+                  s.flags |= BUYER_ORDERED_FLAG; 
+                  s.instructions = instructions;
+                  s.detail = detail_ids;
+                });
+          }
+          
+         // _notify(name("new"), "New deal created", *idx);
+    
+          require_recipient(buyer);
+          require_recipient(seller);
       } 
   }
       

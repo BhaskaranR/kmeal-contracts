@@ -155,6 +155,7 @@ CONTRACT kmeal : public contract {
     name       buyer; 
     name       seller;
     uint64_t   order_status;
+    uint16_t   flags;
     string     instructions;
     vector<uint64_t> detail;
     uint64_t    primary_key() const { return order_id; }
@@ -188,6 +189,12 @@ CONTRACT kmeal : public contract {
       orders(self, self.value)  ,
       orderdetails(self, self.value)
       {}
+      
+    const uint16_t BUYER_ORDERED_FLAG    = 1 << 0;
+    const uint16_t SELLER_ACCEPTED_FLAG   = 1 << 1;
+    const uint16_t DEAL_FUNDED_FLAG       = 1 << 2;
+    const uint16_t DEAL_DELIVERED_FLAG    = 1 << 3;
+    const uint16_t DEAL_ARBITRATION_FLAG  = 1 << 4;
       
     template <typename T>
     void cleanTable(){
@@ -265,7 +272,7 @@ CONTRACT kmeal : public contract {
       bool         isactive
       );
     
-    ACTION placeorder( uint64_t  order_id, name  buyer, name seller,   uint64_t order_status, string  instructions, vector<orderdetail> detail);
+    ACTION placeorder( uint64_t  order_id, name  buyer, name seller, string  instructions, vector<orderdetail> detail);
     
     ACTION opendeposit(name owner);
 
