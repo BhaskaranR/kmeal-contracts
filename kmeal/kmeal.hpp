@@ -3,6 +3,11 @@
 #include <eosiolib/asset.hpp>
 #include <eosiolib/print.hpp>
 #include <eosiolib/time.hpp>
+#include <eosiolib/action.hpp>
+#include <eosiolib/multi_index.hpp>
+#include <eosiolib/crypto.h>
+#include <eosiolib/time.hpp>
+#include <eosiolib/transaction.hpp>
 
 #include <string>
 #include <vector>
@@ -107,7 +112,7 @@ CONTRACT kmeal : public contract {
     struct  [[eosio::table, eosio::contract("kmeal")]]  listing {
       name         owner; 
       uint64_t     listing_id;
-      char         list_type;
+      uint64_t     list_type;
       uint64_t     book_id;
       uint64_t     item_id;
       uint64_t     section_id;
@@ -124,8 +129,9 @@ CONTRACT kmeal : public contract {
       uint64_t     primary_key() const { return listing_id; }
       
       uint64_t get_expires() const { return expires.utc_seconds; }
+      
       uint128_t get_price() const { return list_price; }
-
+      
     };
     
     typedef multi_index<"listings"_n, listing,
@@ -139,16 +145,15 @@ CONTRACT kmeal : public contract {
       uint64_t  quantity;
       float     ordered_price;
       float     final_price;
-      char      listing_type;
       string    instructions;
       
       uint64_t  primary_key() const { return order_detail_id; }
+      
       uint64_t  by_listing_id() const { return listing_id; }
     };
     
   typedef multi_index<"orderdetails"_n, orderdetail, 
-    indexed_by<"bylistingid"_n,
-        const_mem_fun<orderdetail, uint64_t, &orderdetail::by_listing_id>>> orderdetail_table;
+    indexed_by<"bylistingid"_n, const_mem_fun<orderdetail, uint64_t, &orderdetail::by_listing_id>>> orderdetail_table;
   
   struct  [[eosio::table, eosio::contract("kmeal")]]  order {
     uint64_t   order_id;
@@ -156,14 +161,35 @@ CONTRACT kmeal : public contract {
     name       seller;
     uint64_t   order_status;
     uint16_t   flags;
+    uint64_t   order_type;
     string     instructions;
     vector<uint64_t> detail;
     uint64_t    primary_key() const { return order_id; }
     uint64_t    by_buyer() const { return buyer.value; }
-  };
     
+    
+      uint64_t  get_order_type() const { return order_type; }
+  };
+  
   typedef multi_index<"orders"_n, order, 
-     indexed_by<"bybuyer"_n,  const_mem_fun<order, uint64_t, &order::by_buyer>>> order_table;
+     indexed_by<"bybuyer"_n,  const_mem_fun<order, uint64_t, &order::by_buyer>>,
+    indexed_by<"byordertype"_n, const_mem_fun<order, uint64_t, &order::get_order_type>>> order_table;
+     
+  // struct  [[eosio::table, eosio::contract("kmeal")]]  bids { 
+  //     uint64_t  order_detail_id;
+  //     uint64_t  order_id;
+  //     uint64_t  listing_id;
+  //     uint64_t  quantity;
+  //     float     ordered_price;
+  //     float     final_price;
+  //     time_point_sec expires; 
+  //     string    instructions;
+      
+  //     uint64_t  primary_key() const { return order_detail_id; }
+  //     uint64_t  by_order_id() const { return order_id; }
+  //     uint64_t  by_listing_id() const { return listing_id; }
+  //   };
+    
     
   void transfer_kmeal(name from, name to, asset quantity, std::string memo);
     
@@ -195,6 +221,14 @@ CONTRACT kmeal : public contract {
     const uint16_t DEAL_FUNDED_FLAG       = 1 << 2;
     const uint16_t DEAL_DELIVERED_FLAG    = 1 << 3;
     const uint16_t DEAL_ARBITRATION_FLAG  = 1 << 4;
+    
+    const uint16_t DYNAMIC_LIST_TYPE_FLAG    = 1 << 0;
+    const uint16_t GROUP_LIST_TYPE_FLAG    = 1 << 1;
+    const uint16_t REGULAR_LIST_TYPE_FLAG    = 1 << 1;
+    
+    const uint16_t DYNAMIC_ORDER_FLAG    = 1 << 0;
+    const uint16_t GROUP_ORDER_FLAG   = 1 << 1;
+    const uint16_t REGULAR_ORDER_FLAG   = 1 << 2;
       
     template <typename T>
     void cleanTable(){
@@ -260,7 +294,7 @@ CONTRACT kmeal : public contract {
       uint64_t     book_id,
       uint64_t     item_id,
       uint64_t     section_id,
-      char         list_type,
+      uint64_t     list_type,
       float        list_price,
       float        min_price,
       uint64_t     quantity,
@@ -272,7 +306,15 @@ CONTRACT kmeal : public contract {
       bool         isactive
       );
     
-    ACTION placeorder( uint64_t  order_id, name  buyer, name seller, string  instructions, vector<orderdetail> detail);
+    ACTION placeorder( name  buyer, name seller, string  instructions, vector<orderdetail> detail);
+    
+    ACTION accept(name seller, uint64_t order_id);
+    
+    ACTION cancel(uint64_t order_id);
+    
+    ACTION delivered(uint64_t order_id, string memo);
+    
+    ACTION goodsrcvd(uint64_t order_id);
     
     ACTION opendeposit(name owner);
 

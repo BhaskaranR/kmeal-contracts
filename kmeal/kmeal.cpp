@@ -282,19 +282,17 @@ void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t  itemid, 
       }
     }
 }
-    
-  
 
 void kmeal::listitem(
   uint64_t     book_id,
   uint64_t     item_id,
   uint64_t     section_id,
-  char         list_type,
+  uint64_t     list_type,
   float        list_price,
   float        min_price,
   uint64_t     quantity,
   uint32_t     duration, // event duration
-  uint32_t expires,    
+  uint32_t     expires,    
   uint64_t     sliding_rate,
   uint64_t     status,
   vector<listing_sides>   sides,
@@ -314,13 +312,14 @@ void kmeal::listitem(
     bool sectionfound = false;
     bool itemfound = false;
     for (int r = 0; r < sections.size(); r++) {
-    if(sections[r].section_id == section_id) {
-      // todo
-      // check if the item is added to the section
-      // sectionfound = true;
-      // auto item = eosio::find(sections[r].items,item_id);
+      if(sections[r].section_id == section_id) {
+        // todo
+        // check if the item is added to the section
+        // sectionfound = true;
+        // auto item = eosio::find(sections[r].items,item_id);
+      }
     }
-    }
+    //check fields based on list type todo
     // get the listings and update
     auto _listings = listings.find(_item->owner.value);
     if( _listings == listings.end() ) {
@@ -343,101 +342,125 @@ void kmeal::listitem(
     } 
 }
 
-void kmeal::placeorder( uint64_t  order_id, name  buyer, name seller,  
-      string  instructions,
-      vector<orderdetail> detail) {
-      
-      eosio_assert(is_account(buyer), "buyer account does not exist");
-      eosio_assert(is_account(seller), "seller account does not exist");
-      
-      require_auth(buyer);
-      // check if restaurant_id exists
-      auto _restaurant = restaurants.find(seller.value);
-      eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
-      eosio_assert(_restaurant->owner != buyer, "cannot buy from your restaurant");
-      
-      // // check the length of order detail
-      eosio_assert(detail.size() != 0, "items not exists");
-      
-                    
-      for (auto &det : detail) // access by reference to avoid copying
-      {   
-          auto listing_id = det.listing_id;
-          auto _listing = listings.find(listing_id);
-          eosio_assert(_listing != listings.end(), "listing not found"); 
-          eosio_assert(_listing->owner != _restaurant->owner, "listing not found from the restaurant");
-
-          // check the listing type 
-          // if dynamic check and the deal still exists or expired
-          if (_listing->list_type == 'D') {
-            eosio_assert(_listing->expires > time_point_sec(now()), "The deal is expired"); 
-            uint32_t quantity =0;
-            
-            auto orderdx = orderdetails.get_index<"bylistingid"_n>();
-            // todo
-            auto iterator = orderdx.find(listing_id);
-            if (iterator != orderdx.end()) {
-              // for(iterator it = orderdx.begin(); it != orderdx.end(); ++it) {
-              //   quantity = quantity + it.quantity;
-              // }
-              // for(auto& orderdetail : iterator ) {
-              //    
-              // }
-            }
-            //eosio_assert(quantity > _listing->quantity, "deal 100% claimed");
-            eosio_assert(_listing->quantity >2, "cannot order more than 2");
-          }
-          else {
-            // check for restaurant timing.. check if you could time the order
-            eosio::print(_restaurant->timeofoperation);
-          }
-          //loop orderdetail and insert..
-          auto length = detail.size();
-          vector<uint64_t> detail_ids;
-          
-          for(int index = 1; index < length; index++) {
-            auto key = orderdetails.available_primary_key();
-            orderdetails.emplace(_self, [&]( auto& s ) {
-              s.order_detail_id = key;
-              s.listing_id = detail[index].listing_id;
-              s.quantity = detail[index].quantity;
-              s.ordered_price = detail[index].ordered_price;
-              s.final_price = detail[index].final_price;
-              s.listing_type = detail[index].listing_type;
-              s.instructions = detail[index].instructions;
-            });
-            if (detail[index].listing_type == 'D') {
-              orders.emplace(_self, [&]( order& s ) {
-                s.order_id = orders.available_primary_key();
-                s.buyer = buyer;
-                s.seller = seller;
-                s.flags |= BUYER_ORDERED_FLAG; 
-                s.instructions = instructions;
-                s.detail.push_back(key);
-              });
-              
-            } else {
-              detail_ids.push_back(key);
-            }
-          }
-          if (detail_ids.size() > 1) {
-              orders.emplace(_self, [&]( auto& s ) {
-                  s.order_id = orders.available_primary_key();
-                  s.buyer = buyer;
-                  s.seller = seller;
-                  s.flags |= BUYER_ORDERED_FLAG; 
-                  s.instructions = instructions;
-                  s.detail = detail_ids; 
-                });
-          }
-          
-         // _notify(name("new"), "New deal created", *idx);
+void kmeal::placeorder( name  buyer, name seller,  
+    string  instructions,
+    vector<orderdetail> detail) {
     
-          require_recipient(buyer);
-          require_recipient(seller);
-      } 
+    eosio_assert(is_account(buyer), "buyer account does not exist");
+    eosio_assert(is_account(seller), "seller account does not exist");
+    
+    require_auth(buyer);
+    // check if restaurant_id exists
+    auto _restaurant = restaurants.find(seller.value);
+    eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
+    eosio_assert(_restaurant->owner != buyer, "cannot buy from your restaurant");
+    // // check the length of order detail
+    eosio_assert(detail.size() != 0, "items not exists");
+    
+    vector<uint64_t> detail_ids;
+    for (auto &det : detail) {  // access by reference to avoid copying
+      auto listing_id = det.listing_id;
+      auto _listing = listings.find(listing_id);
+      eosio_assert(_listing != listings.end(), "listing not found"); 
+      eosio_assert(_listing->owner != _restaurant->owner, "listing not found from the restaurant");
+      // check the listing type 
+      // if dynamic check and the deal still exists or expired
+      if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG) {
+        eosio_assert(_listing->expires > time_point_sec(now()), "The deal is expired"); 
+        uint32_t quantity =0;
+        auto orderdx = orderdetails.get_index<"bylistingid"_n>();
+        // todo
+        auto iterator = orderdx.find(listing_id);
+        if (iterator != orderdx.end()) {
+          // for(iterator it = orderdx.begin(); it != orderdx.end(); ++it) {
+          //   quantity = quantity + it.quantity;
+          // }
+          // for(auto& orderdetail : iterator ) {
+          //    
+          // }
+        }
+        //eosio_assert(quantity > _listing->quantity, "deal 100% claimed");
+        eosio_assert(_listing->quantity >2, "cannot order more than 2");
+      }
+      else {
+        // check for restaurant timing.. check if you could time the order
+        eosio::print(_restaurant->timeofoperation);
+      }
+      //loop orderdetail and insert..
+      auto key = orderdetails.available_primary_key();
+      orderdetails.emplace(_self, [&]( auto& s ) {
+        s.order_detail_id = key;
+        s.listing_id = det.listing_id;
+        s.quantity = det.quantity;
+        s.ordered_price = det.ordered_price;
+        s.final_price = det.final_price;
+        s.instructions = det.instructions;
+      });
+      if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG) {
+        orders.emplace(_self, [&]( order& s ) {
+          s.order_id = orders.available_primary_key();
+          s.buyer = buyer;
+          s.seller = seller;
+          s.order_type = DYNAMIC_ORDER_FLAG;
+          s.flags |= BUYER_ORDERED_FLAG; 
+          s.instructions = instructions;
+          s.detail.push_back(key);
+        });
+      } else {
+        detail_ids.push_back(key);
+      }
+    }
+    if (detail_ids.size() > 1) {
+      orders.emplace(_self, [&]( auto& s ) {
+          s.order_id = orders.available_primary_key();
+          s.buyer = buyer;
+          s.seller = seller;
+          s.order_type = 'R';
+          s.flags |= BUYER_ORDERED_FLAG; 
+          s.instructions = instructions;
+          vector<uint64_t> detail(detail_ids);
+          s.detail = detail; 
+        });
+    }
+     // _notify(name("new"), "New deal created", *idx);
+    require_recipient(buyer);
+    require_recipient(seller);
   }
       
+void kmeal::accept(name seller, uint64_t order_id)
+  {
+    require_auth(seller);
+    auto orderitr = orders.find(order_id);
+    eosio_assert(orderitr != orders.end(), "Cannot find order_id");
+    const order& d = *orderitr;
+    auto flags = d.flags;
+
+    // eosio_assert(d.expires > time_point_sec(now()), "The deal is expired");
+    
+    // if (seller == d.seller ) {
+    //   eosio_assert( (d.flags & SELLER_ACCEPTED_FLAG) == 0, "Seller has already accepted this deal");
+    //   flags |= SELLER_ACCEPTED_FLAG;
+    // } else {
+    //   eosio_assert(false, "Order can only be accepted by seller");
+    // }
+      
+    // if( (flags & BOTH_ACCEPTED_FLAG) == BOTH_ACCEPTED_FLAG ) {
+    //   _deals.modify( *dealitr, party, [&]( auto& item ) {
+    //       item.flags = flags;
+    //       item.expires = time_point_sec(now()) + ACCEPTED_DEAL_EXPIRES;
+    //     });
+    //   _notify(name("accepted"), "Deal is fully accepted", d);
+    //   require_recipient(d.seller);
+    //   require_recipient(d.buyer);
+    // }
+    // else {
+    //   _deals.modify( *dealitr, party, [&]( auto& item ) {
+    //       item.flags = flags;
+    //     });
+    // }
+
+    //_clean_expired_deals(deal_id);
+  }
 
 void kmeal::opendeposit(name owner)
 {

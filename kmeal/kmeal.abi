@@ -1,7 +1,21 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 15 12:16:52 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 17 19:22:31 2019",
     "version": "eosio::abi/1.1",
     "structs": [
+        {
+            "name": "accept",
+            "base": "",
+            "fields": [
+                {
+                    "name": "seller",
+                    "type": "name"
+                },
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
+        },
         {
             "name": "account",
             "base": "",
@@ -79,6 +93,16 @@
             ]
         },
         {
+            "name": "cancel",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "cleartables",
             "base": "",
             "fields": []
@@ -142,6 +166,20 @@
                 {
                     "name": "types",
                     "type": "string[]"
+                }
+            ]
+        },
+        {
+            "name": "delivered",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
         },
@@ -262,6 +300,16 @@
             ]
         },
         {
+            "name": "goodsrcvd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "listing",
             "base": "",
             "fields": [
@@ -275,7 +323,7 @@
                 },
                 {
                     "name": "list_type",
-                    "type": "int8"
+                    "type": "uint64"
                 },
                 {
                     "name": "book_id",
@@ -367,7 +415,7 @@
                 },
                 {
                     "name": "list_type",
-                    "type": "int8"
+                    "type": "uint64"
                 },
                 {
                     "name": "list_price",
@@ -442,6 +490,10 @@
                     "type": "uint16"
                 },
                 {
+                    "name": "order_type",
+                    "type": "uint64"
+                },
+                {
                     "name": "instructions",
                     "type": "string"
                 },
@@ -476,10 +528,6 @@
                     "type": "float32"
                 },
                 {
-                    "name": "listing_type",
-                    "type": "int8"
-                },
-                {
                     "name": "instructions",
                     "type": "string"
                 }
@@ -489,10 +537,6 @@
             "name": "placeorder",
             "base": "",
             "fields": [
-                {
-                    "name": "order_id",
-                    "type": "uint64"
-                },
                 {
                     "name": "buyer",
                     "type": "name"
@@ -687,6 +731,11 @@
     "types": [],
     "actions": [
         {
+            "name": "accept",
+            "type": "accept",
+            "ricardian_contract": ""
+        },
+        {
             "name": "addsections",
             "type": "addsections",
             "ricardian_contract": ""
@@ -694,6 +743,11 @@
         {
             "name": "addtosection",
             "type": "addtosection",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "cancel",
+            "type": "cancel",
             "ricardian_contract": ""
         },
         {
@@ -714,6 +768,11 @@
         {
             "name": "createitem",
             "type": "createitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delivered",
+            "type": "delivered",
             "ricardian_contract": ""
         },
         {
@@ -739,6 +798,11 @@
         {
             "name": "editsec",
             "type": "editsec",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "goodsrcvd",
+            "type": "goodsrcvd",
             "ricardian_contract": ""
         },
         {
