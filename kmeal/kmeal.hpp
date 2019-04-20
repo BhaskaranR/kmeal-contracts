@@ -16,12 +16,31 @@ using namespace eosio;
 using namespace std;
 
 CONTRACT kmeal : public contract {
+  
+   public:
+  
+      
+    const uint16_t BUYER_ORDERED_FLAG    = 1 << 0;
+    const uint16_t SELLER_ACCEPTED_FLAG   = 1 << 1;
+    const uint16_t ORDER_FUNDED_FLAG       = 1 << 2;
+    const uint16_t ORDER_DELIVERED_FLAG    = 1 << 3;
+    const uint16_t ORDER_ARBITRATION_FLAG  = 1 << 4;
+
+    const uint16_t BOTH_ACCEPTED_FLAG = BUYER_ORDERED_FLAG | SELLER_ACCEPTED_FLAG;
+    
+    const uint16_t DYNAMIC_LIST_TYPE_FLAG    = 1 << 0;
+    const uint16_t GROUP_LIST_TYPE_FLAG    = 1 << 1;
+    const uint16_t REGULAR_LIST_TYPE_FLAG    = 1 << 1;
+    
+    const uint16_t DYNAMIC_ORDER_FLAG    = 1 << 0;
+    const uint16_t GROUP_ORDER_FLAG   = 1 << 1;
+    const uint16_t REGULAR_ORDER_FLAG   = 1 << 2;
      
   private:
     struct [[eosio::table, eosio::contract("kmeal")]] account
     {
         name owner;
-        asset balance = asset{0, kmeal_symbol};
+        asset balance;
         
         uint64_t primary_key() const { return owner.value; }
     };
@@ -218,22 +237,6 @@ CONTRACT kmeal : public contract {
       orders(self, self.value)  ,
       orderdetails(self, self.value)
       {}
-      
-    const uint16_t BUYER_ORDERED_FLAG    = 1 << 0;
-    const uint16_t SELLER_ACCEPTED_FLAG   = 1 << 1;
-    const uint16_t ORDER_FUNDED_FLAG       = 1 << 2;
-    const uint16_t ORDER_DELIVERED_FLAG    = 1 << 3;
-    const uint16_t ORDER_ARBITRATION_FLAG  = 1 << 4;
-
-    const uint16_t BOTH_ACCEPTED_FLAG = BUYER_ORDERED_FLAG | SELLER_ACCEPTED_FLAG;
-    
-    const uint16_t DYNAMIC_LIST_TYPE_FLAG    = 1 << 0;
-    const uint16_t GROUP_LIST_TYPE_FLAG    = 1 << 1;
-    const uint16_t REGULAR_LIST_TYPE_FLAG    = 1 << 1;
-    
-    const uint16_t DYNAMIC_ORDER_FLAG    = 1 << 0;
-    const uint16_t GROUP_ORDER_FLAG   = 1 << 1;
-    const uint16_t REGULAR_ORDER_FLAG   = 1 << 2;
       
     template <typename T>
     void cleanTable(){

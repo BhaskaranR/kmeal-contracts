@@ -4,8 +4,7 @@
 using namespace eosio;
 using namespace std;
 
-
-const symbol kmeal_symbol = symbol("INF", 4);
+const symbol kmeal_symbol = symbol("KMEAL", 4);
 const name kmeal_account = "kmealcoinio1"_n;
 
 void kmeal::cleartables()
@@ -622,7 +621,7 @@ void apply(uint64_t receiver, uint64_t code, uint64_t action) {
       }
     }
     else {
-        if(code == kmeal_account.value && action == name("transfer").value){
+        if(code == kmeal_account.value && action=="transfer"_n.value){
             execute_action(name(receiver), name(code), &kmeal::depositkmeal);
         }
     }
