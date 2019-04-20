@@ -4,7 +4,10 @@
 using namespace eosio;
 using namespace std;
 
-    
+
+const symbol kmeal_symbol = symbol("INF", 4);
+const name kmeal_account = "kmealcoinio1"_n;
+
 void kmeal::cleartables()
 {
     require_auth(_self);
@@ -107,7 +110,7 @@ void kmeal::setuprest(const name account,
         auto itr = accounts.find(account.value);
         accounts.emplace( _self, [&]( auto& a ){
               a.owner = account;
-              a.balance = asset{0, DEFAULT_SYMBOL};
+              a.balance = asset{0, kmeal_symbol};
         });
         restaurants.emplace(account, setter);
     }
@@ -364,9 +367,9 @@ void kmeal::placeorder( name  buyer, name seller,
       eosio_assert(_listing != listings.end(), "listing not found"); 
       eosio_assert(_listing->owner != _restaurant->owner, "listing not found from the restaurant");
       // check the listing type 
-      // if dynamic check and the deal still exists or expired
+      // if dynamic check and the order still exists or expired
       if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG) {
-        eosio_assert(_listing->expires > time_point_sec(now()), "The deal is expired"); 
+        eosio_assert(_listing->expires > time_point_sec(now()), "The order is expired"); 
         uint32_t quantity =0;
         auto orderdx = orderdetails.get_index<"bylistingid"_n>();
         // todo
@@ -379,7 +382,7 @@ void kmeal::placeorder( name  buyer, name seller,
           //    
           // }
         }
-        //eosio_assert(quantity > _listing->quantity, "deal 100% claimed");
+        //eosio_assert(quantity > _listing->quantity, "order 100% claimed");
         eosio_assert(_listing->quantity >2, "cannot order more than 2");
       }
       else {
@@ -402,7 +405,8 @@ void kmeal::placeorder( name  buyer, name seller,
           s.buyer = buyer;
           s.seller = seller;
           s.order_type = DYNAMIC_ORDER_FLAG;
-          s.flags |= BUYER_ORDERED_FLAG; 
+          s.flags |= BUYER_ORDERED_FLAG;
+          s.expires = _listing->expires;
           s.instructions = instructions;
           s.detail.push_back(key);
         });
@@ -416,15 +420,16 @@ void kmeal::placeorder( name  buyer, name seller,
           s.buyer = buyer;
           s.seller = seller;
           s.order_type = 'R';
-          s.flags |= BUYER_ORDERED_FLAG; 
+          s.flags |= BUYER_ORDERED_FLAG;
           s.instructions = instructions;
           vector<uint64_t> detail(detail_ids);
           s.detail = detail; 
         });
     }
-     // _notify(name("new"), "New deal created", *idx);
+     // _notify(name("new"), "New order created", *idx);
     require_recipient(buyer);
     require_recipient(seller);
+    //clean_expiredorders
   }
       
 void kmeal::accept(name seller, uint64_t order_id)
@@ -435,31 +440,59 @@ void kmeal::accept(name seller, uint64_t order_id)
     const order& d = *orderitr;
     auto flags = d.flags;
 
-    // eosio_assert(d.expires > time_point_sec(now()), "The deal is expired");
+    eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
     
-    // if (seller == d.seller ) {
-    //   eosio_assert( (d.flags & SELLER_ACCEPTED_FLAG) == 0, "Seller has already accepted this deal");
-    //   flags |= SELLER_ACCEPTED_FLAG;
-    // } else {
-    //   eosio_assert(false, "Order can only be accepted by seller");
-    // }
-      
-    // if( (flags & BOTH_ACCEPTED_FLAG) == BOTH_ACCEPTED_FLAG ) {
-    //   _deals.modify( *dealitr, party, [&]( auto& item ) {
-    //       item.flags = flags;
-    //       item.expires = time_point_sec(now()) + ACCEPTED_DEAL_EXPIRES;
-    //     });
-    //   _notify(name("accepted"), "Deal is fully accepted", d);
-    //   require_recipient(d.seller);
-    //   require_recipient(d.buyer);
+    if (seller == d.seller ) {
+      eosio_assert( (d.flags & SELLER_ACCEPTED_FLAG) == 0, "Seller has already accepted this order");
+      flags |= SELLER_ACCEPTED_FLAG;
+    } else {
+      eosio_assert(false, "Order can only be accepted by seller");
+    }
+
+    if( (flags & BOTH_ACCEPTED_FLAG) == BOTH_ACCEPTED_FLAG ) {
+      orders.modify( *orderitr, seller, [&]( auto& item ) {
+          item.flags = flags;
+        });
+      //_notify(name("accepted"), "order is fully accepted", d);
+      require_recipient(d.seller);
+      require_recipient(d.buyer);
+    }
+    else {
+      orders.modify( *orderitr, seller, [&]( auto& item ) {
+          item.flags = flags;
+        });
+    }
+
+    //todo
+    //_clean_expiredorders(order_id);
+  }
+
+  void kmeal::cancel(uint64_t order_id) {
+
+    // auto orderitr = orders.find(order_id);
+    // eosio_assert(orderitr != orders.end(), "Cannot find order_id");
+    // const order& d = *orderitr;
+
+    // eosio_assert((d.flags & ORDER_ARBITRATION_FLAG) == 0, "The order is in arbitration");
+    // eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
+    
+    // if( (d.flags & order_FUNDED_FLAG) == 0 ) {
+    //   // not funded, so any of the parties can cancel the order
+    //   eosio_assert(has_auth(d.buyer) || has_auth(d.seller),
+    //               "Only seller or buyer can cancel the order");
     // }
     // else {
-    //   _deals.modify( *dealitr, party, [&]( auto& item ) {
-    //       item.flags = flags;
-    //     });
+    //   eosio_assert((d.flags & order_DELIVERED_FLAG) == 0, "The order is already delivered, cannot cancel");
+    //   // funded, so only seller can cancel the order
+    //   eosio_assert(has_auth(d.seller), "The order is funded, so only seller can cancel it");
+    //   _send_payment(d.buyer, d.price,
+    //                 string("order ") + to_string(d.id) + ": canceled by seller");
+    //   //_notify(name("refunded"), "order canceled by seller, buyer got refunded", d);
     // }
-
-    //_clean_expired_deals(deal_id);
+    
+    // //_notify(name("canceled"), "The order is canceled", d);    
+    // orders.erase(orderitr);
+    // //_clean_expiredorders(order_id);
   }
 
 void kmeal::opendeposit(name owner)
@@ -470,7 +503,7 @@ void kmeal::opendeposit(name owner)
     {
         deposits.emplace(owner, [&](auto &row) {
             row.owner = owner;
-            row.balance = asset(0, DEFAULT_SYMBOL);
+            row.balance = asset(0, kmeal_symbol);
         });
     }
 }
@@ -489,10 +522,10 @@ void kmeal::closedeposit(name owner)
 void kmeal::depositkmeal(name from, name to, asset quantity, std::string memo)
 {
     // In case the tokens are from us, or not to us, do nothing
-    if(from == _self || from == KMEAL_ACCOUNT || to != _self)
+    if(from == _self || from == kmeal_account || to != _self)
         return;
     // This should never happen as we ensured transfer action belongs to "infinicoinio" account
-    eosio_assert(quantity.symbol == DEFAULT_SYMBOL, "The symbol does not match");
+    eosio_assert(quantity.symbol == kmeal_symbol, "The symbol does not match");
     eosio_assert(quantity.is_valid(), "The quantity is not valid");
     eosio_assert(quantity.amount > 0, "The amount must be positive");
     auto deposits_itr = deposits.find(from.value);
@@ -511,11 +544,57 @@ void kmeal::transfer_kmeal(name from, name to, asset quantity, std::string memo)
 {
     action{
         permission_level{_self, "active"_n},
-        KMEAL_ACCOUNT,
+        kmeal_account,
         "transfer"_n,
         std::tuple<name, name, asset, std::string>{from, to, quantity, memo}
     }.send();
 }
+
+
+  // leave a trace in history
+  // void _notify(name order_status, const string message, const order& d)
+  // {
+  //   todo
+  //   action {
+  //     permission_level{_self, name("active")},
+  //     _self,
+  //     name("notify"),
+  //     order_notification_abi {
+  //       .order_status=order_status,
+  //       .message=message,
+  //       .order_id=d.id, .created_by=d.created_by, .description=d.description,
+  //       .tkcontract=d.price.contract, .quantity=d.price.quantity,
+  //       .buyer=d.buyer, .seller=d.seller, .arbiter=d.arbiter, .days=d.days,
+  //       .delivery_memo=d.delivery_memo }
+  //   }.send();
+  // }
+  
+
+
+      
+  // inline notifications
+  struct order_notification_abi {
+    name        order_status;
+    string      message;
+    uint64_t    order_id;
+    name        created_by;
+    string      description;
+    name        tkcontract;
+    asset       quantity;
+    name        buyer;
+    name        seller;
+    name        arbiter;
+    uint32_t    days;
+    string      delivery_memo;
+  };
+
+  ACTION notify(name order_status, string message, uint64_t order_id, name created_by,
+                string description, name tkcontract, asset& quantity,
+                name buyer, name seller, name arbiter, uint32_t days, string delivery_memo)
+  {
+    // require_auth(_self);
+  }
+
 
 
 extern "C" {
@@ -538,11 +617,12 @@ void apply(uint64_t receiver, uint64_t code, uint64_t action) {
             (delsec)
             (delrest)
             (placeorder)
+            (accept)
             (cleartables))
       }
     }
     else {
-        if(code == name("eosio.token").value && action == name("transfer").value){
+        if(code == kmeal_account.value && action == name("transfer").value){
             execute_action(name(receiver), name(code), &kmeal::depositkmeal);
         }
     }

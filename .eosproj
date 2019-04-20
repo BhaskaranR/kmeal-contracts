@@ -1,7 +1,8 @@
 {
-  "main": "kmeal.cpp",
-  "contract": "kmeal",
+  "main": "",
+  "contract": "",
   "include": "",
+  "cdt": "",
   "output": "",
   "scripts": {
     "build": ""
@@ -11,5 +12,8 @@
     "kylin": "",
     "jungle": "",
     "local": ""
+  },
+  "test": {
+    "npmClient": "npm"
   }
 }

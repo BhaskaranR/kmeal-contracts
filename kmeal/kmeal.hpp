@@ -21,7 +21,7 @@ CONTRACT kmeal : public contract {
     struct [[eosio::table, eosio::contract("kmeal")]] account
     {
         name owner;
-        asset balance = asset{0, DEFAULT_SYMBOL};
+        asset balance = asset{0, kmeal_symbol};
         
         uint64_t primary_key() const { return owner.value; }
     };
@@ -162,17 +162,20 @@ CONTRACT kmeal : public contract {
     uint64_t   order_status;
     uint16_t   flags;
     uint64_t   order_type;
+    float      total_price;
     string     instructions;
     vector<uint64_t> detail;
+    time_point_sec expires; 
     uint64_t    primary_key() const { return order_id; }
     uint64_t    by_buyer() const { return buyer.value; }
     
-    
-      uint64_t  get_order_type() const { return order_type; }
+    uint64_t get_expires() const { return expires.utc_seconds; }
+      
+    uint64_t  get_order_type() const { return order_type; }
   };
   
   typedef multi_index<"orders"_n, order, 
-     indexed_by<"bybuyer"_n,  const_mem_fun<order, uint64_t, &order::by_buyer>>,
+    indexed_by<"bybuyer"_n,  const_mem_fun<order, uint64_t, &order::by_buyer>>,
     indexed_by<"byordertype"_n, const_mem_fun<order, uint64_t, &order::get_order_type>>> order_table;
      
   // struct  [[eosio::table, eosio::contract("kmeal")]]  bids { 
@@ -218,9 +221,11 @@ CONTRACT kmeal : public contract {
       
     const uint16_t BUYER_ORDERED_FLAG    = 1 << 0;
     const uint16_t SELLER_ACCEPTED_FLAG   = 1 << 1;
-    const uint16_t DEAL_FUNDED_FLAG       = 1 << 2;
-    const uint16_t DEAL_DELIVERED_FLAG    = 1 << 3;
-    const uint16_t DEAL_ARBITRATION_FLAG  = 1 << 4;
+    const uint16_t ORDER_FUNDED_FLAG       = 1 << 2;
+    const uint16_t ORDER_DELIVERED_FLAG    = 1 << 3;
+    const uint16_t ORDER_ARBITRATION_FLAG  = 1 << 4;
+
+    const uint16_t BOTH_ACCEPTED_FLAG = BUYER_ORDERED_FLAG | SELLER_ACCEPTED_FLAG;
     
     const uint16_t DYNAMIC_LIST_TYPE_FLAG    = 1 << 0;
     const uint16_t GROUP_LIST_TYPE_FLAG    = 1 << 1;
