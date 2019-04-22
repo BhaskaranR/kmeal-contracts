@@ -29,6 +29,7 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "regex": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "__string": "cpp"
     }
 }

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Apr 20 15:47:31 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Apr 20 19:15:16 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -456,6 +456,60 @@
             ]
         },
         {
+            "name": "notify",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_status",
+                    "type": "name"
+                },
+                {
+                    "name": "message",
+                    "type": "string"
+                },
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "created_by",
+                    "type": "name"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "tkcontract",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "seller",
+                    "type": "name"
+                },
+                {
+                    "name": "arbiter",
+                    "type": "name"
+                },
+                {
+                    "name": "days",
+                    "type": "uint32"
+                },
+                {
+                    "name": "delivery_memo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "opendeposit",
             "base": "",
             "fields": [
@@ -816,6 +870,11 @@
         {
             "name": "listitem",
             "type": "listitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "notify",
+            "type": "notify",
             "ricardian_contract": ""
         },
         {

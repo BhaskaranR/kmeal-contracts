@@ -1,6 +1,5 @@
 #include "kmeal.hpp"
 
-
 using namespace eosio;
 using namespace std;
 
@@ -9,116 +8,121 @@ const name kmeal_account = "kmealcoinio1"_n;
 
 void kmeal::cleartables()
 {
-    require_auth(_self);
-    
-    eosio::print(eosio::name(_self.value));
-    auto restaurants_itr = restaurants.begin();
-    while (restaurants_itr != restaurants.end()) {
-        restaurants_itr = restaurants.erase (restaurants_itr);
-    }
-      
-    auto accounts_itr = accounts.begin();
-    while (accounts_itr != accounts.end()) {
-        accounts_itr = accounts.erase (accounts_itr);
-    }
-      
-    auto books_itr = books.begin();
-    while (books_itr != books.end()) {
-      books_itr = books.erase (books_itr);
-    }
-      
-    auto orders_itr = orders.begin();
-    while (orders_itr != orders.end()) {
-        orders_itr = orders.erase (orders_itr);
-    }
-    
-    auto listings_itr = listings.begin();
-    while (listings_itr != listings.end()) {
-        listings_itr = listings.erase (listings_itr);
-    }
-    
-    auto deposits_itr = deposits.begin();
-    while (deposits_itr != deposits.end()) {
-        deposits_itr = deposits.erase (deposits_itr);
-    }
-    
-    auto items_itr = items.begin();
-    while (items_itr != items.end()) {
-        items_itr = items.erase (items_itr);
-    }
+  require_auth(_self);
+
+  eosio::print(eosio::name(_self.value));
+  auto restaurants_itr = restaurants.begin();
+  while (restaurants_itr != restaurants.end())
+  {
+    restaurants_itr = restaurants.erase(restaurants_itr);
+  }
+
+  auto accounts_itr = accounts.begin();
+  while (accounts_itr != accounts.end())
+  {
+    accounts_itr = accounts.erase(accounts_itr);
+  }
+
+  auto books_itr = books.begin();
+  while (books_itr != books.end())
+  {
+    books_itr = books.erase(books_itr);
+  }
+
+  auto orders_itr = orders.begin();
+  while (orders_itr != orders.end())
+  {
+    orders_itr = orders.erase(orders_itr);
+  }
+
+  auto listings_itr = listings.begin();
+  while (listings_itr != listings.end())
+  {
+    listings_itr = listings.erase(listings_itr);
+  }
+
+  auto deposits_itr = deposits.begin();
+  while (deposits_itr != deposits.end())
+  {
+    deposits_itr = deposits.erase(deposits_itr);
+  }
+
+  auto items_itr = items.begin();
+  while (items_itr != items.end())
+  {
+    items_itr = items.erase(items_itr);
+  }
 }
 
-
-void kmeal::setuprest(const name account, 
-                    const string name, 
-                    const string description, 
-                    const string phone, 
-                    const string address,
-                    const string address2,
-                    const string city,
-                    const string state,
-                    const string postalCode,
-                    const double latitude, 
-                    const double longitude, 
-                    const string logo, 
-                    const vector<string> categories, 
-                    const string timeofoperation
-                    )
+void kmeal::setuprest(const name account,
+                      const string name,
+                      const string description,
+                      const string phone,
+                      const string address,
+                      const string address2,
+                      const string city,
+                      const string state,
+                      const string postalCode,
+                      const double latitude,
+                      const double longitude,
+                      const string logo,
+                      const vector<string> categories,
+                      const string timeofoperation)
 {
-    require_auth(account);
-    eosio_assert(is_account(account), "account does not exist");
-    eosio_assert(name.length() > 0, "name cannot be empty");
-    eosio_assert(phone.length() > 0, "phone cannot be empty");
-    //todo
-    // eosio_assert(address.length() > 0, "address cannot be empty");
-    // eosio_assert(address2.length() > 0, "address cannot be empty");
-    
-    // auto res_acc_index = restaurants.get_index<"owner"_n>();
-    // auto iter = res_acc_index.find(account.value);
-    // eosio_assert(iter == res_acc_index.end(), "already signed up" );
-    
-    
-    //assign permission for owner to onboard..
-    
-    auto accsetter = [&]( auto& s ) {
-        s.owner = account;
-        s.is_active = 1;
-    };
-    
-    auto setter = [&]( auto& s ) {
+  require_auth(account);
+  eosio_assert(is_account(account), "account does not exist");
+  eosio_assert(name.length() > 0, "name cannot be empty");
+  eosio_assert(phone.length() > 0, "phone cannot be empty");
+  //todo
+  // eosio_assert(address.length() > 0, "address cannot be empty");
+  // eosio_assert(address2.length() > 0, "address cannot be empty");
+
+  // auto res_acc_index = restaurants.get_index<"owner"_n>();
+  // auto iter = res_acc_index.find(account.value);
+  // eosio_assert(iter == res_acc_index.end(), "already signed up" );
+
+  //assign permission for owner to onboard..
+
+  auto accsetter = [&](auto &s) {
     s.owner = account;
-        s.name = name;
-        s.description = description;
-        s.phone = phone;
-        s.address = address;
-        s.address2 = address2;
-        s.city = city;
-        s.state = state;
-        s.postalCode = postalCode;
-        s.latitude = latitude;
-        s.longitude = longitude;
-        s.logo = logo;
-        s.categories = categories;
-        s.timeofoperation = timeofoperation;
-    };
-    
-    auto _restaurant = restaurants.find(account.value);
-    if( _restaurant == restaurants.end() ) {
-        auto _account = accounts.find(account.value);
-        eosio_assert(_account != accounts.end(), "already signed up as customer" );
-        auto itr = accounts.find(account.value);
-        accounts.emplace( _self, [&]( auto& a ){
-              a.owner = account;
-              a.balance = asset{0, kmeal_symbol};
-        });
-        restaurants.emplace(account, setter);
-    }
-    else {
-      restaurants.modify(*_restaurant, account, setter);
-    }
+    s.is_active = 1;
+  };
+
+  auto setter = [&](auto &s) {
+    s.owner = account;
+    s.name = name;
+    s.description = description;
+    s.phone = phone;
+    s.address = address;
+    s.address2 = address2;
+    s.city = city;
+    s.state = state;
+    s.postalCode = postalCode;
+    s.latitude = latitude;
+    s.longitude = longitude;
+    s.logo = logo;
+    s.categories = categories;
+    s.timeofoperation = timeofoperation;
+  };
+
+  auto _restaurant = restaurants.find(account.value);
+  if (_restaurant == restaurants.end())
+  {
+    auto _account = accounts.find(account.value);
+    eosio_assert(_account != accounts.end(), "already signed up as customer");
+    auto itr = accounts.find(account.value);
+    accounts.emplace(_self, [&](auto &a) {
+      a.owner = account;
+      a.balance = asset{0, kmeal_symbol};
+    });
+    restaurants.emplace(account, setter);
+  }
+  else
+  {
+    restaurants.modify(*_restaurant, account, setter);
+  }
 }
 
-  
 void kmeal::delrest(name account)
 {
   require_auth(account);
@@ -126,30 +130,32 @@ void kmeal::delrest(name account)
   eosio_assert(_restaurant != restaurants.end(), "Cannot find the restaurant");
   eosio_assert(_restaurant->is_active, "This restaurant is already marked for deletion");
   //todo cannot delete during time of operation and cannot delete when you have active orders
-  restaurants.modify(*_restaurant, account, [&]( auto& item ) {
-      item.is_active = 0;
-    });
+  restaurants.modify(*_restaurant, account, [&](auto &item) {
+    item.is_active = 0;
+  });
 }
 
-
-void kmeal::createbook(const name account, const string bookname) {
+void kmeal::createbook(const name account, const string bookname)
+{
   require_auth(account);
-  
+
   auto iter = restaurants.find(account.value);
   eosio_assert(iter != restaurants.end(), "restaurant owner not found");
-  
+
   auto _books = books.find(account.value);
-  if( _books == books.end() ) { 
-    books.emplace(_self, [&]( auto& s ) {
+  if (_books == books.end())
+  {
+    books.emplace(_self, [&](auto &s) {
       s.book_id = books.available_primary_key();
       s.owner = account;
       s.book_name = bookname;
-      s.sections =  vector<kmeal::section>();
+      s.sections = vector<kmeal::section>();
     });
   }
 }
 
-void kmeal::addsections(uint64_t bookid, std::string sectionname, uint64_t sortorder) {
+void kmeal::addsections(uint64_t bookid, std::string sectionname, uint64_t sortorder)
+{
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
@@ -161,7 +167,8 @@ void kmeal::addsections(uint64_t bookid, std::string sectionname, uint64_t sorto
   sections.push_back(sec);
 }
 
-void kmeal::setsecorder(uint64_t bookid, uint64_t sectionid,  uint64_t sortorder) {
+void kmeal::setsecorder(uint64_t bookid, uint64_t sectionid, uint64_t sortorder)
+{
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
@@ -169,461 +176,531 @@ void kmeal::setsecorder(uint64_t bookid, uint64_t sectionid,  uint64_t sortorder
   eosio_assert(sections.cbegin() != sections.cend(), "no section values yet");
   auto length = sections.size();
   eosio_assert(sortorder > length, "wrong sort order");
-  
-  for(int index = 1; index < length; index++) {
-    if (sections[index].section_id == sectionid ) {
-        auto section = sections[index];
-        sections.erase(sections.begin() + index);
-        sections.insert(sections.begin() + sortorder, section);
-        break;
+
+  for (int index = 1; index < length; index++)
+  {
+    if (sections[index].section_id == sectionid)
+    {
+      auto section = sections[index];
+      sections.erase(sections.begin() + index);
+      sections.insert(sections.begin() + sortorder, section);
+      break;
     }
   }
 }
 
-void kmeal::delsec(uint64_t bookid, uint64_t secid) {
+void kmeal::delsec(uint64_t bookid, uint64_t secid)
+{
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
   vector<section> sections = iter->sections;
-  eosio_assert(sections.cbegin() != sections.cend(), "no section values yet"); 
-    
+  eosio_assert(sections.cbegin() != sections.cend(), "no section values yet");
+
   auto length = sections.size();
-  for(int index = 1; index < length; index++) {
-      if (sections[index].section_id == secid ) {
-        sections.erase(sections.begin() + index);
-        break;
-      }
+  for (int index = 1; index < length; index++)
+  {
+    if (sections[index].section_id == secid)
+    {
+      sections.erase(sections.begin() + index);
+      break;
+    }
   }
 }
 
 void kmeal::createitem(name account,
-                      string    itemname,
-                      string    description,
-                      string    photo,
-                      uint64_t  spicy_level,
-                      uint64_t  vegetarian,
-                      uint64_t  cooking_time,
-                      vector<string> types) {
+                       string itemname,
+                       string description,
+                       string photo,
+                       uint64_t spicy_level,
+                       uint64_t vegetarian,
+                       uint64_t cooking_time,
+                       vector<string> types)
+{
   //todo  validate other inputs
-    auto iter = restaurants.find(account.value);
-    eosio_assert(iter != restaurants.end(), "restaurant owner not found");
-    require_auth (iter->owner);
-    
-    auto _items = items.find(account.value);
-    //find itemid by secoundary indx which is the item namespace
-    if( _items == items.end() ) {
-      items.emplace(_self, [&]( auto& s) {
-        s.item_id = items.available_primary_key();
-        s.owner = account;
-        s.item_name = itemname;
-        s.description = description;
-        s.photo = photo;
-        s.spicy_level = spicy_level;
-        s.vegetarian = vegetarian;
-        s.cooking_time = cooking_time;
-        s.types = types;
-        s.is_active = 1;
-      });
-    }
+  auto iter = restaurants.find(account.value);
+  eosio_assert(iter != restaurants.end(), "restaurant owner not found");
+  require_auth(iter->owner);
+
+  auto _items = items.find(account.value);
+  //find itemid by secoundary indx which is the item namespace
+  if (_items == items.end())
+  {
+    items.emplace(_self, [&](auto &s) {
+      s.item_id = items.available_primary_key();
+      s.owner = account;
+      s.item_name = itemname;
+      s.description = description;
+      s.photo = photo;
+      s.spicy_level = spicy_level;
+      s.vegetarian = vegetarian;
+      s.cooking_time = cooking_time;
+      s.types = types;
+      s.is_active = 1;
+    });
   }
+}
 
 void kmeal::edititem(
-      uint64_t  itemid,
-      string    itemname,
-      string    description,
-      string    photo,
-      uint64_t  spicy_level,
-      uint64_t  vegetarian,
-      uint64_t  cooking_time,
-      vector<string> types) {
-        
-      auto _item = items.find(itemid);
-      eosio_assert(_item != items.end(), "item could not be found");
-      require_auth(_item->owner);
-    
-      items.modify(*_item, _self, [&]( auto& s ) {
-        s.item_name = itemname;
-        s.description = description;
-        s.photo = photo;
-        s.spicy_level = spicy_level;
-        s.vegetarian = vegetarian;
-        s.cooking_time = cooking_time;
-        s.types = types;
-        s.is_active = 1;
-      });
-    
-  }
+    uint64_t itemid,
+    string itemname,
+    string description,
+    string photo,
+    uint64_t spicy_level,
+    uint64_t vegetarian,
+    uint64_t cooking_time,
+    vector<string> types)
+{
 
-void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t  itemid, uint64_t  sortorder) {
+  auto _item = items.find(itemid);
+  eosio_assert(_item != items.end(), "item could not be found");
+  require_auth(_item->owner);
+
+  items.modify(*_item, _self, [&](auto &s) {
+    s.item_name = itemname;
+    s.description = description;
+    s.photo = photo;
+    s.spicy_level = spicy_level;
+    s.vegetarian = vegetarian;
+    s.cooking_time = cooking_time;
+    s.types = types;
+    s.is_active = 1;
+  });
+}
+
+void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder)
+{
   //auth the owner of bookid
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
-  
+
   //auth the owner of itemid
   auto i_iter = items.find(itemid);
   eosio_assert(i_iter != items.end(), "itemid not found");
   require_auth(i_iter->owner);
   //loop through sections
   auto sections = iter->sections;
-  for (int r = 0; r < sections.size(); r++) {
-    if(sections[r].section_id == sectionid) {
-        vector<uint64_t> items =sections[r].items;
-        auto itemid_itr = std::find (items.begin(), items.end(), itemid);
-        if (itemid_itr != items.end()) {
-          if (sortorder > items.size()){
-            items.push_back(itemid);
-          } else { 
-            items.insert(items.begin() + sortorder, itemid);
-          }
-        } else {
-          items.erase(items.begin() + sortorder);
+  for (int r = 0; r < sections.size(); r++)
+  {
+    if (sections[r].section_id == sectionid)
+    {
+      vector<uint64_t> items = sections[r].items;
+      auto itemid_itr = std::find(items.begin(), items.end(), itemid);
+      if (itemid_itr != items.end())
+      {
+        if (sortorder > items.size())
+        {
+          items.push_back(itemid);
+        }
+        else
+        {
           items.insert(items.begin() + sortorder, itemid);
         }
-        break;
       }
+      else
+      {
+        items.erase(items.begin() + sortorder);
+        items.insert(items.begin() + sortorder, itemid);
+      }
+      break;
     }
+  }
 }
 
 void kmeal::listitem(
-  uint64_t     book_id,
-  uint64_t     item_id,
-  uint64_t     section_id,
-  uint64_t     list_type,
-  float        list_price,
-  float        min_price,
-  uint64_t     quantity,
-  uint32_t     duration, // event duration
-  uint32_t     expires,    
-  uint64_t     sliding_rate,
-  uint64_t     status,
-  vector<listing_sides>   sides,
-  bool         isactive
-) {
-  
-    //auth the owner of the item
-    auto _item = items.find(item_id);
-    eosio_assert(_item != items.end(), "restaurant owner not found");
-    require_auth(_item->owner.value);
-    
-    auto _book = books.find(book_id);
-    eosio_assert(_book != books.end(), "book not found");
-    require_auth(_book->owner.value);
+    uint64_t book_id,
+    uint64_t item_id,
+    uint64_t section_id,
+    uint64_t list_type,
+    float list_price,
+    float min_price,
+    uint64_t quantity,
+    uint32_t duration, // event duration
+    uint32_t expires,
+    uint64_t sliding_rate,
+    uint64_t status,
+    vector<listing_sides> sides,
+    bool isactive)
+{
 
-    auto sections = _book->sections;
-    bool sectionfound = false;
-    bool itemfound = false;
-    for (int r = 0; r < sections.size(); r++) {
-      if(sections[r].section_id == section_id) {
-        // todo
-        // check if the item is added to the section
-        // sectionfound = true;
-        // auto item = eosio::find(sections[r].items,item_id);
-      }
+  //auth the owner of the item
+  auto _item = items.find(item_id);
+  eosio_assert(_item != items.end(), "restaurant owner not found");
+  require_auth(_item->owner.value);
+
+  auto _book = books.find(book_id);
+  eosio_assert(_book != books.end(), "book not found");
+  require_auth(_book->owner.value);
+
+  auto sections = _book->sections;
+  bool sectionfound = false;
+  bool itemfound = false;
+  for (int r = 0; r < sections.size(); r++)
+  {
+    if (sections[r].section_id == section_id)
+    {
+      // todo
+      // check if the item is added to the section
+      // sectionfound = true;
+      // auto item = eosio::find(sections[r].items,item_id);
     }
-    //check fields based on list type todo
-    // get the listings and update
-    auto _listings = listings.find(_item->owner.value);
-    if( _listings == listings.end() ) {
-      listings.emplace(_self, [&]( auto& s ) {
-          s.listing_id = listings.available_primary_key();
-          s.book_id = book_id;
-          s.item_id = item_id;
-          s.section_id = section_id;
-          s.list_type = list_type;
-          s.list_price = list_price;
-          s.min_price = min_price;
-          s.quantity = quantity;
-          s.duration = duration;
-          s.expires = time_point_sec(now()) +  expires;
-          s.sliding_rate = sliding_rate;
-          s.status = status;
-          s.sides = sides;
-          s.isactive =1;
-      });
-    } 
+  }
+  //check fields based on list type todo
+  // get the listings and update
+  auto _listings = listings.find(_item->owner.value);
+  if (_listings == listings.end())
+  {
+    listings.emplace(_self, [&](auto &s) {
+      s.listing_id = listings.available_primary_key();
+      s.book_id = book_id;
+      s.item_id = item_id;
+      s.section_id = section_id;
+      s.list_type = list_type;
+      s.list_price = list_price;
+      s.min_price = min_price;
+      s.quantity = quantity;
+      s.duration = duration;
+      s.expires = time_point_sec(now()) + expires;
+      s.sliding_rate = sliding_rate;
+      s.status = status;
+      s.sides = sides;
+      s.isactive = 1;
+    });
+  }
 }
 
-void kmeal::placeorder( name  buyer, name seller,  
-    string  instructions,
-    vector<orderdetail> detail) {
-    
-    eosio_assert(is_account(buyer), "buyer account does not exist");
-    eosio_assert(is_account(seller), "seller account does not exist");
-    
-    require_auth(buyer);
-    // check if restaurant_id exists
-    auto _restaurant = restaurants.find(seller.value);
-    eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
-    eosio_assert(_restaurant->owner != buyer, "cannot buy from your restaurant");
-    // // check the length of order detail
-    eosio_assert(detail.size() != 0, "items not exists");
-    
-    vector<uint64_t> detail_ids;
-    for (auto &det : detail) {  // access by reference to avoid copying
-      auto listing_id = det.listing_id;
-      auto _listing = listings.find(listing_id);
-      eosio_assert(_listing != listings.end(), "listing not found"); 
-      eosio_assert(_listing->owner != _restaurant->owner, "listing not found from the restaurant");
-      // check the listing type 
-      // if dynamic check and the order still exists or expired
-      if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG) {
-        eosio_assert(_listing->expires > time_point_sec(now()), "The order is expired"); 
-        uint32_t quantity =0;
-        auto orderdx = orderdetails.get_index<"bylistingid"_n>();
-        // todo
-        auto iterator = orderdx.find(listing_id);
-        if (iterator != orderdx.end()) {
-          // for(iterator it = orderdx.begin(); it != orderdx.end(); ++it) {
-          //   quantity = quantity + it.quantity;
-          // }
-          // for(auto& orderdetail : iterator ) {
-          //    
-          // }
-        }
-        //eosio_assert(quantity > _listing->quantity, "order 100% claimed");
-        eosio_assert(_listing->quantity >2, "cannot order more than 2");
+void kmeal::placeorder(name buyer, name seller,
+                       string instructions,
+                       vector<orderdetail> detail)
+{
+
+  eosio_assert(is_account(buyer), "buyer account does not exist");
+  eosio_assert(is_account(seller), "seller account does not exist");
+
+  require_auth(buyer);
+  // check if restaurant_id exists
+  auto _restaurant = restaurants.find(seller.value);
+  eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
+  eosio_assert(_restaurant->owner != buyer, "cannot buy from your restaurant");
+  // // check the length of order detail
+  eosio_assert(detail.size() != 0, "items not exists");
+
+  vector<uint64_t> detail_ids;
+  for (auto &det : detail)
+  { // access by reference to avoid copying
+    auto listing_id = det.listing_id;
+    auto _listing = listings.find(listing_id);
+    eosio_assert(_listing != listings.end(), "listing not found");
+    eosio_assert(_listing->owner != _restaurant->owner, "listing not found from the restaurant");
+    // check the listing type
+    // if dynamic check and the order still exists or expired
+    if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG)
+    {
+      eosio_assert(_listing->expires > time_point_sec(now()), "The order is expired");
+      uint32_t quantity = 0;
+      auto orderdx = orderdetails.get_index<"bylistingid"_n>();
+      // todo
+      auto iterator = orderdx.find(listing_id);
+      if (iterator != orderdx.end())
+      {
+        // for(iterator it = orderdx.begin(); it != orderdx.end(); ++it) {
+        //   quantity = quantity + it.quantity;
+        // }
+        // for(auto& orderdetail : iterator ) {
+        //
+        // }
       }
-      else {
-        // check for restaurant timing.. check if you could time the order
-        eosio::print(_restaurant->timeofoperation);
-      }
-      //loop orderdetail and insert..
-      auto key = orderdetails.available_primary_key();
-      orderdetails.emplace(_self, [&]( auto& s ) {
-        s.order_detail_id = key;
-        s.listing_id = det.listing_id;
-        s.quantity = det.quantity;
-        s.ordered_price = det.ordered_price;
-        s.final_price = det.final_price;
-        s.instructions = det.instructions;
+      //eosio_assert(quantity > _listing->quantity, "order 100% claimed");
+      eosio_assert(_listing->quantity > 2, "cannot order more than 2");
+    }
+    else
+    {
+      // check for restaurant timing.. check if you could time the order
+      eosio::print(_restaurant->timeofoperation);
+    }
+    //loop orderdetail and insert..
+    auto key = orderdetails.available_primary_key();
+    orderdetails.emplace(_self, [&](auto &s) {
+      s.order_detail_id = key;
+      s.listing_id = det.listing_id;
+      s.quantity = det.quantity;
+      s.ordered_price = det.ordered_price;
+      s.final_price = det.final_price;
+      s.instructions = det.instructions;
+    });
+    if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG)
+    {
+      orders.emplace(_self, [&](order &s) {
+        s.order_id = orders.available_primary_key();
+        s.buyer = buyer;
+        s.seller = seller;
+        s.order_type = DYNAMIC_ORDER_FLAG;
+        s.flags |= BUYER_ORDERED_FLAG;
+        s.expires = _listing->expires;
+        s.instructions = instructions;
+        s.detail.push_back(key);
       });
-      if (_listing->list_type == DYNAMIC_LIST_TYPE_FLAG) {
-        orders.emplace(_self, [&]( order& s ) {
-          s.order_id = orders.available_primary_key();
-          s.buyer = buyer;
-          s.seller = seller;
-          s.order_type = DYNAMIC_ORDER_FLAG;
-          s.flags |= BUYER_ORDERED_FLAG;
-          s.expires = _listing->expires;
-          s.instructions = instructions;
-          s.detail.push_back(key);
-        });
-      } else {
-        detail_ids.push_back(key);
-      }
     }
-    if (detail_ids.size() > 1) {
-      orders.emplace(_self, [&]( auto& s ) {
-          s.order_id = orders.available_primary_key();
-          s.buyer = buyer;
-          s.seller = seller;
-          s.order_type = 'R';
-          s.flags |= BUYER_ORDERED_FLAG;
-          s.instructions = instructions;
-          vector<uint64_t> detail(detail_ids);
-          s.detail = detail; 
-        });
+    else
+    {
+      detail_ids.push_back(key);
     }
-     // _notify(name("new"), "New order created", *idx);
-    require_recipient(buyer);
-    require_recipient(seller);
-    //clean_expiredorders
   }
-      
-void kmeal::accept(name seller, uint64_t order_id)
+  if (detail_ids.size() > 1)
   {
-    require_auth(seller);
-    auto orderitr = orders.find(order_id);
-    eosio_assert(orderitr != orders.end(), "Cannot find order_id");
-    const order& d = *orderitr;
-    auto flags = d.flags;
+    orders.emplace(_self, [&](auto &s) {
+      s.order_id = orders.available_primary_key();
+      s.buyer = buyer;
+      s.seller = seller;
+      s.order_type = 'R';
+      s.flags |= BUYER_ORDERED_FLAG;
+      s.instructions = instructions;
+      vector<uint64_t> detail(detail_ids);
+      s.detail = detail;
+    });
+  }
+  // _notify(name("new"), "New order created", *idx);
+  require_recipient(buyer);
+  require_recipient(seller);
+  //clean_expiredorders
+}
 
-    eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
-    
-    if (seller == d.seller ) {
-      eosio_assert( (d.flags & SELLER_ACCEPTED_FLAG) == 0, "Seller has already accepted this order");
-      flags |= SELLER_ACCEPTED_FLAG;
-    } else {
-      eosio_assert(false, "Order can only be accepted by seller");
-    }
+void kmeal::accept(name seller, uint64_t order_id)
+{
+  require_auth(seller);
+  auto orderitr = orders.find(order_id);
+  eosio_assert(orderitr != orders.end(), "Cannot find order_id");
+  const order &d = *orderitr;
+  auto flags = d.flags;
 
-    if( (flags & BOTH_ACCEPTED_FLAG) == BOTH_ACCEPTED_FLAG ) {
-      orders.modify( *orderitr, seller, [&]( auto& item ) {
-          item.flags = flags;
-        });
-      //_notify(name("accepted"), "order is fully accepted", d);
-      require_recipient(d.seller);
-      require_recipient(d.buyer);
-    }
-    else {
-      orders.modify( *orderitr, seller, [&]( auto& item ) {
-          item.flags = flags;
-        });
-    }
+  eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
 
-    //todo
-    //_clean_expiredorders(order_id);
+  if (seller == d.seller)
+  {
+    eosio_assert((d.flags & SELLER_ACCEPTED_FLAG) == 0, "Seller has already accepted this order");
+    flags |= SELLER_ACCEPTED_FLAG;
+  }
+  else
+  {
+    eosio_assert(false, "Order can only be accepted by seller");
   }
 
-  void kmeal::cancel(uint64_t order_id) {
-
-    // auto orderitr = orders.find(order_id);
-    // eosio_assert(orderitr != orders.end(), "Cannot find order_id");
-    // const order& d = *orderitr;
-
-    // eosio_assert((d.flags & ORDER_ARBITRATION_FLAG) == 0, "The order is in arbitration");
-    // eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
-    
-    // if( (d.flags & order_FUNDED_FLAG) == 0 ) {
-    //   // not funded, so any of the parties can cancel the order
-    //   eosio_assert(has_auth(d.buyer) || has_auth(d.seller),
-    //               "Only seller or buyer can cancel the order");
-    // }
-    // else {
-    //   eosio_assert((d.flags & order_DELIVERED_FLAG) == 0, "The order is already delivered, cannot cancel");
-    //   // funded, so only seller can cancel the order
-    //   eosio_assert(has_auth(d.seller), "The order is funded, so only seller can cancel it");
-    //   _send_payment(d.buyer, d.price,
-    //                 string("order ") + to_string(d.id) + ": canceled by seller");
-    //   //_notify(name("refunded"), "order canceled by seller, buyer got refunded", d);
-    // }
-    
-    // //_notify(name("canceled"), "The order is canceled", d);    
-    // orders.erase(orderitr);
-    // //_clean_expiredorders(order_id);
+  if ((flags & BOTH_ACCEPTED_FLAG) == BOTH_ACCEPTED_FLAG)
+  {
+    orders.modify(*orderitr, seller, [&](auto &item) {
+      item.flags = flags;
+    });
+    //_notify(name("accepted"), "order is fully accepted", d);
+    require_recipient(d.seller);
+    require_recipient(d.buyer);
   }
+  else
+  {
+    orders.modify(*orderitr, seller, [&](auto &item) {
+      item.flags = flags;
+    });
+  }
+
+  //todo
+  //_clean_expiredorders(order_id);
+}
+
+void kmeal::cancel(uint64_t order_id)
+{
+  auto orderitr = orders.find(order_id);
+  eosio_assert(orderitr != orders.end(), "Cannot find order_id");
+  const order &d = *orderitr;
+
+  eosio_assert((d.flags & ORDER_ARBITRATION_FLAG) == 0, "The order is in arbitration");
+  eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
+
+  if ((d.flags & order_FUNDED_FLAG) == 0)
+  {
+    // not funded, so any of the parties can cancel the order
+    eosio_assert(has_auth(d.buyer) || has_auth(d.seller),
+                 "Only seller or buyer can cancel the order");
+  }
+  else
+  {
+    eosio_assert((d.flags & order_DELIVERED_FLAG) == 0, "The order is already delivered, cannot cancel");
+    // funded, so only seller can cancel the order
+    eosio_assert(has_auth(d.seller), "The order is funded, so only seller can cancel it");
+    _send_payment(d.buyer, d.price,
+                  string("order ") + to_string(d.id) + ": canceled by seller");
+    //_notify(name("refunded"), "order canceled by seller, buyer got refunded", d);
+  }
+
+  //_notify(name("canceled"), "The order is canceled", d);
+  orders.erase(orderitr);
+  //_clean_expiredorders(order_id);
+}
+
+// Goods Received may be made before "delivered", but the ordered must be funded first
+void kmeal::delivered(uint64_t order_id, string memo)
+{
+  auto orderitr = orders.find(order_id);
+  eosio_assert(orderitr != orders.end(), "Cannot find order_id");
+  const order &d = *orderitr;
+
+  eosio_assert(d.expires > time_point_sec(now()), "The ordered is expired");
+
+  eosio_assert((d.flags & ORDER_FUNDED_FLAG), "The ordered is not funded yet");
+  eosio_assert((d.flags & ORDER_DELIVERED_FLAG) == 0, "The ordered is already marked as delivered");
+  eosio_assert(has_auth(d.seller), "Only seller can mark a ordered as delivered");
+
+  orders.modify(*orderitr, d.seller, [&](auto &item) {
+    item.expires = time_point_sec(now()) + DELIVERED_ORDER_EXPIRES;
+    item.flags |= ORDER_DELIVERED_FLAG;
+    item.delivery_memo = memo;
+  });
+
+  _notify(name("delivered"), "Order is marked as delivered", d);
+  require_recipient(d.buyer);
+  //_clean_expiredorders(order_id);
+}
+
+void kmeal::goodsrcvd(uint64_t order_id)
+{
+  auto orderitr = orders.find(order_id);
+  eosio_assert(orderitr != orders.end(), "Cannot find order_id");
+  const deal &d = *orderitr;
+
+  eosio_assert((d.flags & ORDER_FUNDED_FLAG), "The ordered is not funded yet");
+  eosio_assert(has_auth(d.buyer), "Only buyer can sign-off Goods Received");
+
+  _send_payment(d.seller, d.price,
+                string("Deal ") + to_string(d.id) + ": goods received, ordered closed");
+  _notify(name("closed"), "Goods received, ordered closed", d);
+  if (d.flags & ORDER_ARBITRATION_FLAG)
+  {
+    require_recipient(d.arbiter);
+  }
+  orders.erase(orderitr);
+  _clean_expiredorders(order_id);
+}
 
 void kmeal::opendeposit(name owner)
 {
-    require_auth(owner);
-    auto deposits_itr = deposits.find(owner.value);
-    if(deposits_itr == deposits.end())
-    {
-        deposits.emplace(owner, [&](auto &row) {
-            row.owner = owner;
-            row.balance = asset(0, kmeal_symbol);
-        });
-    }
+  require_auth(owner);
+  auto deposits_itr = deposits.find(owner.value);
+  if (deposits_itr == deposits.end())
+  {
+    deposits.emplace(owner, [&](auto &row) {
+      row.owner = owner;
+      row.balance = asset(0, kmeal_symbol);
+    });
+  }
 }
 
 void kmeal::closedeposit(name owner)
 {
-    eosio_assert(has_auth(owner) || has_auth(_self), "You do not have authority to close this deposit");
-    deposit d = deposits.get(owner.value, "User does not have a deposit opened");
-    if(d.balance.amount > 0)
-    {
-        transfer_kmeal(_self, owner, d.balance, "KMEAL deposit refund");
-    }
-    deposits.erase(deposits.find(owner.value));
+  eosio_assert(has_auth(owner) || has_auth(_self), "You do not have authority to close this deposit");
+  deposit d = deposits.get(owner.value, "User does not have a deposit opened");
+  if (d.balance.amount > 0)
+  {
+    transfer_kmeal(_self, owner, d.balance, "KMEAL deposit refund");
+  }
+  deposits.erase(deposits.find(owner.value));
 }
 
 void kmeal::depositkmeal(name from, name to, asset quantity, std::string memo)
 {
-    // In case the tokens are from us, or not to us, do nothing
-    if(from == _self || from == kmeal_account || to != _self)
-        return;
-    // This should never happen as we ensured transfer action belongs to "infinicoinio" account
-    eosio_assert(quantity.symbol == kmeal_symbol, "The symbol does not match");
-    eosio_assert(quantity.is_valid(), "The quantity is not valid");
-    eosio_assert(quantity.amount > 0, "The amount must be positive");
-    auto deposits_itr = deposits.find(from.value);
-    eosio_assert(deposits_itr != deposits.end(), "User does not have a deposit opened");
+  // In case the tokens are from us, or not to us, do nothing
+  if (from == _self || from == kmeal_account || to != _self)
+    return;
+  // This should never happen as we ensured transfer action belongs to "infinicoinio" account
+  eosio_assert(quantity.symbol == kmeal_symbol, "The symbol does not match");
+  eosio_assert(quantity.is_valid(), "The quantity is not valid");
+  eosio_assert(quantity.amount > 0, "The amount must be positive");
+  auto deposits_itr = deposits.find(from.value);
+  eosio_assert(deposits_itr != deposits.end(), "User does not have a deposit opened");
 
-    deposits.modify(deposits_itr, same_payer, [&](auto &row){
-        row.balance += quantity;
-    });
+  deposits.modify(deposits_itr, same_payer, [&](auto &row) {
+    row.balance += quantity;
+  });
 }
-
-
 
 // This function requires giving the active permission to the eosio.code permission
 // cleos set account permission infiniverse1 active '{"threshold": 1,"keys": [{"key": "ACTIVE PUBKEY","weight": 1}],"accounts": [{"permission":{"actor":"infiniverse1","permission":"eosio.code"},"weight":1}]}' owner -p infiniverse1@owner
 void kmeal::transfer_kmeal(name from, name to, asset quantity, std::string memo)
 {
-    action{
-        permission_level{_self, "active"_n},
-        kmeal_account,
-        "transfer"_n,
-        std::tuple<name, name, asset, std::string>{from, to, quantity, memo}
-    }.send();
+  action{
+      permission_level{_self, "active"_n},
+      kmeal_account,
+      "transfer"_n,
+      std::tuple<name, name, asset, std::string>{from, to, quantity, memo}}
+      .send();
 }
 
+// leave a trace in history
+void _notify(name order_status, const string message, const order &d)
+{
+  todo
+      action{
+          permission_level{_self, name("active")},
+          _self,
+          name("notify"),
+          order_notification_abi{
+              .order_status = order_status,
+              .message = message,
+              .order_id = d.id,
+              .created_by = d.created_by,
+              .description = d.description,
+              .tkcontract = d.price.contract,
+              .quantity = d.price.quantity,
+              .buyer = d.buyer,
+              .seller = d.seller,
+              .arbiter = d.arbiter,
+              .days = d.days,
+              .delivery_memo = d.delivery_memo}}
+          .send();
+}
 
-  // leave a trace in history
-  // void _notify(name order_status, const string message, const order& d)
-  // {
-  //   todo
-  //   action {
-  //     permission_level{_self, name("active")},
-  //     _self,
-  //     name("notify"),
-  //     order_notification_abi {
-  //       .order_status=order_status,
-  //       .message=message,
-  //       .order_id=d.id, .created_by=d.created_by, .description=d.description,
-  //       .tkcontract=d.price.contract, .quantity=d.price.quantity,
-  //       .buyer=d.buyer, .seller=d.seller, .arbiter=d.arbiter, .days=d.days,
-  //       .delivery_memo=d.delivery_memo }
-  //   }.send();
-  // }
-  
+// inline notifications
+struct order_notification_abi
+{
+  name order_status;
+  string message;
+  uint64_t order_id;
+  name created_by;
+  string description;
+  name tkcontract;
+  asset quantity;
+  name buyer;
+  name seller;
+  name arbiter;
+  uint32_t days;
+  string delivery_memo;
+};
 
+void kmeal::notify(name order_status, string message, uint64_t order_id, name created_by,
+                   string description, name tkcontract, asset &quantity,
+                   name buyer, name seller, name arbiter, uint32_t days, string delivery_memo)
+{
+  require_auth(_self);
+}
 
-      
-  // inline notifications
-  struct order_notification_abi {
-    name        order_status;
-    string      message;
-    uint64_t    order_id;
-    name        created_by;
-    string      description;
-    name        tkcontract;
-    asset       quantity;
-    name        buyer;
-    name        seller;
-    name        arbiter;
-    uint32_t    days;
-    string      delivery_memo;
-  };
-
-  ACTION notify(name order_status, string message, uint64_t order_id, name created_by,
-                string description, name tkcontract, asset& quantity,
-                name buyer, name seller, name arbiter, uint32_t days, string delivery_memo)
+extern "C"
+{
+  void apply(uint64_t receiver, uint64_t code, uint64_t action)
   {
-    // require_auth(_self);
-  }
-
-
-
-extern "C" {
-void apply(uint64_t receiver, uint64_t code, uint64_t action) {
     auto self = receiver;
 
-    if( code == self ){ 
-      switch(action) {
-            EOSIO_DISPATCH_HELPER( kmeal,  
-            (setuprest)
-            (createbook)
-            (opendeposit)
-            (closedeposit)
-            (depositkmeal)
-            (addsections)
-            (addtosection)
-            (listitem)
-            (createitem)
-            (setsecorder)
-            (delsec)
-            (delrest)
-            (placeorder)
-            (accept)
-            (cleartables))
+    if (code == self)
+    {
+      switch (action)
+      {
+        EOSIO_DISPATCH_HELPER(kmeal,
+                              (setuprest)(createbook)(opendeposit)(closedeposit)(depositkmeal)(addsections)(addtosection)(listitem)(createitem)(setsecorder)(delsec)(delrest)(placeorder)(accept)(cleartables))
       }
     }
-    else {
-        if(code == kmeal_account.value && action=="transfer"_n.value){
-            execute_action(name(receiver), name(code), &kmeal::depositkmeal);
-        }
+    else
+    {
+      if (code == kmeal_account.value && action == "transfer"_n.value)
+      {
+        execute_action(name(receiver), name(code), &kmeal::depositkmeal);
+      }
     }
-}
+  }
 };
