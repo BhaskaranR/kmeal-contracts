@@ -1,7 +1,8 @@
-#ifndef KMEAL_CONFIG_HPP
+const int WIPE_EXP_DEALS_TAX = 3; // delete up to so many expired deals in every action
+const unsigned int WIPE_EXP_TX_DELAY = 10; // deferred transaction delay, seconds
 
-#define DAY  60 * 60 * 24
-#define WEEK 60 * 60 * 24 * 7
+const int NEW_ORDER_EXPIRES = 3*3600*24;
+const int ACCEPTED_ORDER_EXPIRES = 3*3600*24;
+const int DELIVERED_ORDER_EXPIRES = 3*3600*24;
 
-#define DAY_SEC = 24*3600;
-#endif
+const int DAY_SEC = 24*3600;

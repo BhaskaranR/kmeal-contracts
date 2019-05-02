@@ -30,6 +30,7 @@
         "type_traits": "cpp",
         "regex": "cpp",
         "iosfwd": "cpp",
-        "__string": "cpp"
+        "__string": "cpp",
+        "__locale": "cpp"
     }
 }

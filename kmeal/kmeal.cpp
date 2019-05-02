@@ -460,7 +460,7 @@ void kmeal::placeorder(name buyer, name seller,
       s.detail = detail;
     });
   }
-  // _notify(name("new"), "New order created", *idx);
+  _notify(name("new"), "New order created", *idx);
   require_recipient(buyer);
   require_recipient(seller);
   //clean_expiredorders
@@ -491,7 +491,7 @@ void kmeal::accept(name seller, uint64_t order_id)
     orders.modify(*orderitr, seller, [&](auto &item) {
       item.flags = flags;
     });
-    //_notify(name("accepted"), "order is fully accepted", d);
+    _notify(name("accepted"), "order is fully accepted", d);
     require_recipient(d.seller);
     require_recipient(d.buyer);
   }
@@ -515,7 +515,7 @@ void kmeal::cancel(uint64_t order_id)
   eosio_assert((d.flags & ORDER_ARBITRATION_FLAG) == 0, "The order is in arbitration");
   eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
 
-  if ((d.flags & order_FUNDED_FLAG) == 0)
+  if ((d.flags & ORDER_FUNDED_FLAG) == 0)
   {
     // not funded, so any of the parties can cancel the order
     eosio_assert(has_auth(d.buyer) || has_auth(d.seller),
@@ -523,15 +523,14 @@ void kmeal::cancel(uint64_t order_id)
   }
   else
   {
-    eosio_assert((d.flags & order_DELIVERED_FLAG) == 0, "The order is already delivered, cannot cancel");
+    eosio_assert((d.flags & ORDER_DELIVERED_FLAG) == 0, "The order is already delivered, cannot cancel");
     // funded, so only seller can cancel the order
     eosio_assert(has_auth(d.seller), "The order is funded, so only seller can cancel it");
-    _send_payment(d.buyer, d.price,
-                  string("order ") + to_string(d.id) + ": canceled by seller");
-    //_notify(name("refunded"), "order canceled by seller, buyer got refunded", d);
+    transfer_kmeal(d.buyer, d.total_price, string("order ") + to_string(d.order_id) + ": canceled by seller");
+    _notify(name("refunded"), "order canceled by seller, buyer got refunded", d);
   }
 
-  //_notify(name("canceled"), "The order is canceled", d);
+  _notify(name("canceled"), "The order is canceled", d);
   orders.erase(orderitr);
   //_clean_expiredorders(order_id);
 }
@@ -544,7 +543,6 @@ void kmeal::delivered(uint64_t order_id, string memo)
   const order &d = *orderitr;
 
   eosio_assert(d.expires > time_point_sec(now()), "The ordered is expired");
-
   eosio_assert((d.flags & ORDER_FUNDED_FLAG), "The ordered is not funded yet");
   eosio_assert((d.flags & ORDER_DELIVERED_FLAG) == 0, "The ordered is already marked as delivered");
   eosio_assert(has_auth(d.seller), "Only seller can mark a ordered as delivered");
@@ -564,20 +562,21 @@ void kmeal::goodsrcvd(uint64_t order_id)
 {
   auto orderitr = orders.find(order_id);
   eosio_assert(orderitr != orders.end(), "Cannot find order_id");
-  const deal &d = *orderitr;
+  const order &d = *orderitr;
 
   eosio_assert((d.flags & ORDER_FUNDED_FLAG), "The ordered is not funded yet");
   eosio_assert(has_auth(d.buyer), "Only buyer can sign-off Goods Received");
 
-  _send_payment(d.seller, d.price,
-                string("Deal ") + to_string(d.id) + ": goods received, ordered closed");
+  transfer_kmeal(d.seller, d.price,
+                 string("Order ") + to_string(d.id) + ": goods received, order closed");
+
   _notify(name("closed"), "Goods received, ordered closed", d);
   if (d.flags & ORDER_ARBITRATION_FLAG)
   {
-    require_recipient(d.arbiter);
+    // require_recipient(d.arbiter);
   }
   orders.erase(orderitr);
-  _clean_expiredorders(order_id);
+  //_clean_expiredorders(order_id);
 }
 
 void kmeal::opendeposit(name owner)
@@ -599,9 +598,65 @@ void kmeal::closedeposit(name owner)
   deposit d = deposits.get(owner.value, "User does not have a deposit opened");
   if (d.balance.amount > 0)
   {
-    transfer_kmeal(_self, owner, d.balance, "KMEAL deposit refund");
+    transfer_kmeal(owner, d.balance, "KMEAL deposit refund");
   }
   deposits.erase(deposits.find(owner.value));
+}
+
+void kmeal::transfer_handler(name from, name to, asset quantity, std::string memo)
+{
+  // In case the tokens are from us, or not to us, do nothing
+  if (from == _self || from == kmeal_account || to != _self)
+    return;
+
+  // This should never happen as we ensured transfer action belongs to "kmealcoinio1" account
+  eosio_assert(quantity.symbol == kmeal_symbol, "The symbol does not match");
+  eosio_assert(quantity.is_valid(), "The quantity is not valid");
+  eosio_assert(quantity.amount > 0, "The amount must be positive");
+
+  eosio_assert(memo.length() > 0, "Memo must contain a valid order ID");
+
+  uint64_t order_id = 0;
+  for (int i = 0; i < memo.length(); i++)
+  {
+    char c = memo[i];
+    eosio_assert('0' <= c && c <= '9', "Invalid character in symbol name. Expected only digits");
+    order_id *= 10;
+    order_id += (c - '0');
+  }
+
+  auto orderitr = orders.find(order_id);
+  eosio_assert(orderitr != orders.end(), (string("Cannot find order ID: ") + to_string(order_id)).c_str());
+  const order &d = *orderitr;
+
+  eosio_assert(d.expires > time_point_sec(now()), "The order is expired");
+
+  eosio_assert((d.flags & order_FUNDED_FLAG) == 0, "The order is already funded");
+  eosio_assert((d.flags & BOTH_ACCEPTED_FLAG) == BOTH_ACCEPTED_FLAG,
+               "The order is not accepted yet by both parties");
+  eosio_assert(from == d.buyer, "The order can only funded by buyer");
+  const extended_asset payment(quantity, name{get_code()});
+
+  eosio_assert(payment == d.price,
+               (string("Invalid amount or currency. Expected ") +
+                d.price.quantity.to_string() + " via " + d.price.contract.to_string())
+                   .c_str());
+  orders.modify(*orderitr, _self, [&](auto &item) {
+    item.funded = time_point_sec(now());
+    item.expires = item.funded + (item.days * DAY_SEC);
+    item.flags |= order_FUNDED_FLAG;
+  });
+
+  auto deposits_itr = deposits.find(from.value);
+  eosio_assert(deposits_itr != deposits.end(), "User does not have a deposit opened");
+
+  deposits.modify(deposits_itr, same_payer, [&](auto &row) {
+    row.balance += quantity;
+  });
+
+  _notify(name("funded"), "order is funded", d);
+  require_recipient(d.seller);
+  // _clean_expiredorders(order_id);
 }
 
 void kmeal::depositkmeal(name from, name to, asset quantity, std::string memo)
@@ -622,15 +677,22 @@ void kmeal::depositkmeal(name from, name to, asset quantity, std::string memo)
 }
 
 // This function requires giving the active permission to the eosio.code permission
-// cleos set account permission infiniverse1 active '{"threshold": 1,"keys": [{"key": "ACTIVE PUBKEY","weight": 1}],"accounts": [{"permission":{"actor":"infiniverse1","permission":"eosio.code"},"weight":1}]}' owner -p infiniverse1@owner
-void kmeal::transfer_kmeal(name from, name to, asset quantity, std::string memo)
+// cleos set account permission kmealadmin15 active '{"threshold": 1,"keys": [{"key": "ACTIVE PUBKEY","weight": 1}],"accounts": [{"permission":{"actor":"kmealadmin15","permission":"eosio.code"},"weight":1}]}' owner -p kmealadmin15@owner
+void kmeal::transfer_kmeal(name to, asset quantity, std::string memo)
 {
   action{
       permission_level{_self, "active"_n},
       kmeal_account,
       "transfer"_n,
-      std::tuple<name, name, asset, std::string>{from, to, quantity, memo}}
+      transfer{
+          .from = _self, .to = recipient, .quantity = quantity, .memo = memo}}
       .send();
+}
+
+void kmeal::notify(name order_status, uint64_t order_id, string description, asset quantity,
+                   name buyer, name seller, name arbiter, uint32_t days, string order_memo)
+{
+  require_auth(_self);
 }
 
 // leave a trace in history
@@ -644,35 +706,16 @@ void _notify(name order_status, const string message, const order &d)
           order_notification_abi{
               .order_status = order_status,
               .message = message,
-              .order_id = d.id,
-              .created_by = d.created_by,
-              .description = d.description,
+              .order_id = d.order_id,
               .tkcontract = d.price.contract,
               .quantity = d.price.quantity,
               .buyer = d.buyer,
               .seller = d.seller,
               .arbiter = d.arbiter,
               .days = d.days,
-              .delivery_memo = d.delivery_memo}}
+              .memo = d.delivery_memo}}
           .send();
 }
-
-// inline notifications
-struct order_notification_abi
-{
-  name order_status;
-  string message;
-  uint64_t order_id;
-  name created_by;
-  string description;
-  name tkcontract;
-  asset quantity;
-  name buyer;
-  name seller;
-  name arbiter;
-  uint32_t days;
-  string delivery_memo;
-};
 
 void kmeal::notify(name order_status, string message, uint64_t order_id, name created_by,
                    string description, name tkcontract, asset &quantity,
@@ -699,7 +742,7 @@ extern "C"
     {
       if (code == kmeal_account.value && action == "transfer"_n.value)
       {
-        execute_action(name(receiver), name(code), &kmeal::depositkmeal);
+        execute_action(name(receiver), name(code), &kmeal::transfer_handler);
       }
     }
   }

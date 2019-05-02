@@ -37,6 +37,31 @@ public:
   const uint16_t REGULAR_ORDER_FLAG = 1 << 2;
 
 private:
+
+
+  struct transfer
+  {
+    name         from;
+    name         to;
+    asset        quantity;
+    string       memo;
+  };
+
+
+  struct order_notification_abi {
+    name        order_status;
+    string      message;
+    uint64_t    order_id;
+    string      description;
+    name        tkcontract;
+    asset       quantity;
+    name        buyer;
+    name        seller;
+    name        arbiter;
+    uint32_t    days;
+    string      memo;
+  };
+
   struct [[ eosio::table, eosio::contract("kmeal") ]] account
   {
     name owner;
@@ -73,6 +98,27 @@ private:
   };
 
   typedef multi_index<"restaurants"_n, restaurant> restaurants_table;
+
+  struct [[eosio::table("arbiters")]] arbiter
+  {
+    name account;
+    string contact_name;
+    string email;
+    string description;
+    string website;
+    string phone;
+    string iso_country;
+    uint32_t processed_deals = 0;
+    uint8_t is_active;
+
+    auto primary_key() const { return account.value; }
+    uint64_t get_is_active() const { return is_active; }
+  };
+
+  typedef eosio::multi_index<
+      name("arbiters"), arbiter,
+      indexed_by<name("active"), const_mem_fun<arbiter, uint64_t, &arbiter::get_is_active>>>
+      arbiters_table;
 
   struct [[ eosio::table, eosio::contract("kmeal") ]] deposit
   {
@@ -185,13 +231,16 @@ private:
     uint64_t order_id;
     name buyer;
     name seller;
+    name arbitrator;
     uint64_t order_status;
     uint16_t flags;
     uint64_t order_type;
-    float total_price;
+    asset total_price;
     string instructions;
     vector<uint64_t> detail;
     time_point_sec expires;
+    string delivery_memo;
+
     uint64_t primary_key() const { return order_id; }
     uint64_t by_buyer() const { return buyer.value; }
 
@@ -205,21 +254,6 @@ private:
                       indexed_by<"byordertype"_n, const_mem_fun<order, uint64_t, &order::get_order_type>>>
       order_table;
 
-  // struct  [[eosio::table, eosio::contract("kmeal")]]  bids {
-  //     uint64_t  order_detail_id;
-  //     uint64_t  order_id;
-  //     uint64_t  listing_id;
-  //     uint64_t  quantity;
-  //     float     ordered_price;
-  //     float     final_price;
-  //     time_point_sec expires;
-  //     string    instructions;
-
-  //     uint64_t  primary_key() const { return order_detail_id; }
-  //     uint64_t  by_order_id() const { return order_id; }
-  //     uint64_t  by_listing_id() const { return listing_id; }
-  //   };
-
   void transfer_kmeal(name from, name to, asset quantity, std::string memo);
 
   items_table items;
@@ -230,6 +264,7 @@ private:
   accounts_table accounts;
   order_table orders;
   orderdetail_table orderdetails;
+  arbiters_table arbiters;
 
 public:
   kmeal(eosio::name self, eosio::name code, datastream<const char *> ds)
@@ -240,6 +275,7 @@ public:
         books(self, self.value),
         listings(self, self.value),
         restaurants(self, self.value),
+        arbiters(self, self.value),
         orders(self, self.value),
         orderdetails(self, self.value)
   {
@@ -337,8 +373,12 @@ public:
   ACTION closedeposit(name owner);
 
   ACTION depositkmeal(name from, name to, asset quantity, std::string memo);
-  
-  ACTION notify(name order_status, string message, uint64_t order_id, name created_by,
-              string description, name tkcontract, asset &quantity,
-              name buyer, name seller, name arbiter, uint32_t days, string delivery_memo);
+
+  ACTION notify(name order_status, uint64_t order_id, string description, asset quantity,
+                name buyer, name seller, name arbiter, uint32_t days, string memo);
+
+  ACTION setarbiter(name account, string contact_name, string email, string description,
+                    string website, string phone, string iso_country);
+
+  ACTION delarbiter(name account)
 };

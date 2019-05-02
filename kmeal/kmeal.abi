@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Apr 20 19:15:16 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Apr 23 19:45:05 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -549,7 +549,7 @@
                 },
                 {
                     "name": "total_price",
-                    "type": "float32"
+                    "type": "asset"
                 },
                 {
                     "name": "instructions",
@@ -562,6 +562,10 @@
                 {
                     "name": "expires",
                     "type": "time_point_sec"
+                },
+                {
+                    "name": "delivery_memo",
+                    "type": "string"
                 }
             ]
         },
