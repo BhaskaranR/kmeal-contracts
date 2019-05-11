@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Apr 23 19:45:05 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat May 11 01:53:55 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -67,6 +67,48 @@
                 {
                     "name": "sortorder",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "arbiter",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "contact_name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "website",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "iso_country",
+                    "type": "string"
+                },
+                {
+                    "name": "processed_deals",
+                    "type": "uint32"
+                },
+                {
+                    "name": "is_active",
+                    "type": "uint8"
                 }
             ]
         },
@@ -166,6 +208,16 @@
                 {
                     "name": "types",
                     "type": "string[]"
+                }
+            ]
+        },
+        {
+            "name": "delarbiter",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
                 }
             ]
         },
@@ -464,24 +516,12 @@
                     "type": "name"
                 },
                 {
-                    "name": "message",
-                    "type": "string"
-                },
-                {
                     "name": "order_id",
                     "type": "uint64"
                 },
                 {
-                    "name": "created_by",
-                    "type": "name"
-                },
-                {
                     "name": "description",
                     "type": "string"
-                },
-                {
-                    "name": "tkcontract",
-                    "type": "name"
                 },
                 {
                     "name": "quantity",
@@ -504,7 +544,7 @@
                     "type": "uint32"
                 },
                 {
-                    "name": "delivery_memo",
+                    "name": "memo",
                     "type": "string"
                 }
             ]
@@ -536,6 +576,10 @@
                     "type": "name"
                 },
                 {
+                    "name": "arbitrator",
+                    "type": "name"
+                },
+                {
                     "name": "order_status",
                     "type": "uint64"
                 },
@@ -556,8 +600,16 @@
                     "type": "string"
                 },
                 {
+                    "name": "days",
+                    "type": "uint32"
+                },
+                {
                     "name": "detail",
                     "type": "uint64[]"
+                },
+                {
+                    "name": "funded",
+                    "type": "time_point_sec"
                 },
                 {
                     "name": "expires",
@@ -714,6 +766,40 @@
             ]
         },
         {
+            "name": "setarbiter",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "contact_name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "website",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "iso_country",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "setsecorder",
             "base": "",
             "fields": [
@@ -837,6 +923,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "delarbiter",
+            "type": "delarbiter",
+            "ricardian_contract": ""
+        },
+        {
             "name": "delivered",
             "type": "delivered",
             "ricardian_contract": ""
@@ -892,6 +983,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "setarbiter",
+            "type": "setarbiter",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setsecorder",
             "type": "setsecorder",
             "ricardian_contract": ""
@@ -906,6 +1002,13 @@
         {
             "name": "accounts",
             "type": "account",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "arbiters",
+            "type": "arbiter",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

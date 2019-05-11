@@ -62,7 +62,7 @@ private:
     string      memo;
   };
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] account
+  struct [[eosio::table, eosio::contract("kmeal")]] account
   {
     name owner;
     asset balance;
@@ -237,9 +237,13 @@ private:
     uint64_t order_type;
     asset total_price;
     string instructions;
+    uint32_t    days;
     vector<uint64_t> detail;
+    time_point_sec funded;
     time_point_sec expires;
+    
     string delivery_memo;
+    
 
     uint64_t primary_key() const { return order_id; }
     uint64_t by_buyer() const { return buyer.value; }
@@ -254,7 +258,6 @@ private:
                       indexed_by<"byordertype"_n, const_mem_fun<order, uint64_t, &order::get_order_type>>>
       order_table;
 
-  void transfer_kmeal(name from, name to, asset quantity, std::string memo);
 
   items_table items;
   deposit_table deposits;
@@ -279,7 +282,13 @@ public:
         orders(self, self.value),
         orderdetails(self, self.value)
   {
+    
   }
+  
+  
+  void send_payment( name to, asset quantity, std::string memo);
+  
+  void transfer_handler(name from, name to, asset quantity, std::string memo);
 
   template <typename T>
   void cleanTable()
@@ -296,19 +305,19 @@ public:
   ACTION cleartables();
 
   ACTION setuprest(const name account,
-                   const string name,
-                   const string description,
-                   const string phone,
-                   const string address,
-                   const string address2,
-                   const string city,
-                   const string state,
-                   const string postalCode,
-                   const double latitude,
-                   const double longitude,
-                   const string logo,
-                   const vector<string> categories,
-                   const string timeofoperation);
+                  const string name,
+                  const string description,
+                  const string phone,
+                  const string address,
+                  const string address2,
+                  const string city,
+                  const string state,
+                  const string postalCode,
+                  const double latitude,
+                  const double longitude,
+                  const string logo,
+                  const vector<string> categories,
+                  const string timeofoperation);
 
   ACTION delrest(const name account);
 
@@ -380,5 +389,5 @@ public:
   ACTION setarbiter(name account, string contact_name, string email, string description,
                     string website, string phone, string iso_country);
 
-  ACTION delarbiter(name account)
+  ACTION delarbiter(name account);
 };
