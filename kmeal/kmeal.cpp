@@ -73,16 +73,10 @@ void kmeal::setuprest(const name account,
   eosio_assert(is_account(account), "account does not exist");
   eosio_assert(name.length() > 0, "name cannot be empty");
   eosio_assert(phone.length() > 0, "phone cannot be empty");
-  //todo
-  // eosio_assert(address.length() > 0, "address cannot be empty");
-  // eosio_assert(address2.length() > 0, "address cannot be empty");
-
-  // auto res_acc_index = restaurants.get_index<"owner"_n>();
-  // auto iter = res_acc_index.find(account.value);
-  // eosio_assert(iter == res_acc_index.end(), "already signed up" );
-
+  eosio_assert(address.length() > 0, "address cannot be empty");
+  eosio_assert(address2.length() > 0, "address cannot be empty");
+  
   //assign permission for owner to onboard..
-
   auto accsetter = [&](auto &s) {
     s.owner = account;
     s.is_active = 1;
@@ -109,8 +103,9 @@ void kmeal::setuprest(const name account,
   if (_restaurant == restaurants.end())
   {
     auto _account = accounts.find(account.value);
-    eosio_assert(_account != accounts.end(), "already signed up as customer");
+    eosio_assert(_account == accounts.end(), "already signed up as customer");
     auto itr = accounts.find(account.value);
+    
     accounts.emplace(_self, [&](auto &a) {
       a.owner = account;
       a.balance = asset{0, kmeal_symbol};

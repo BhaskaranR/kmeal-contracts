@@ -74,7 +74,6 @@ private:
 
   struct [[ eosio::table, eosio::contract("kmeal") ]] restaurant
   {
-    uint64_t restaurant_id;
     name owner;
     string name;
     string description;
