@@ -162,9 +162,11 @@ private:
     uint64_t book_id;
     name owner;
     string book_name;
+    
     vector<section> sections;
 
     uint64_t primary_key() const { return book_id; }
+    
   };
 
   typedef multi_index<"books"_n, book> books_table;
@@ -201,6 +203,7 @@ private:
 
     uint128_t get_price() const { return list_price; }
   };
+  
 
   typedef multi_index<"listings"_n, listing,
                       indexed_by<"expires"_n, const_mem_fun<listing, uint64_t, &listing::get_expires>>,
@@ -322,7 +325,7 @@ public:
 
   ACTION createbook(const name account, const string bookname);
 
-  ACTION addsections(uint64_t bookid, std::string sectionname, uint64_t sortorder);
+  ACTION addsections(uint64_t bookid, std::string sectionname);
 
   ACTION editsec(uint64_t bookid, std::string sectionname, uint64_t sortorder);
 
