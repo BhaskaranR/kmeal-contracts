@@ -156,6 +156,9 @@ private:
     vector<uint64_t> items;
     uint64_t primary_key() const { return section_id; }
   };
+  
+  
+  typedef multi_index<"sections"_n, section> sections_table;
 
   struct [[ eosio::table, eosio::contract("kmeal") ]] book
   {
@@ -163,7 +166,7 @@ private:
     name owner;
     string book_name;
     
-    vector<section> sections;
+    vector<uint64_t> sections;
 
     uint64_t primary_key() const { return book_id; }
     
@@ -263,6 +266,7 @@ private:
 
   items_table items;
   deposit_table deposits;
+  sections_table sections;
   books_table books;
   listings_table listings;
   restaurants_table restaurants;
@@ -277,6 +281,7 @@ public:
         deposits(self, self.value),
         accounts(self, self.value),
         items(self, self.value),
+        sections(self, self.value),
         books(self, self.value),
         listings(self, self.value),
         restaurants(self, self.value),

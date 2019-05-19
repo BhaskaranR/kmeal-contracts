@@ -106,7 +106,7 @@ void kmeal::createbook(const name account, const string bookname)
       s.book_id = books.available_primary_key();
       s.owner = account;
       s.book_name = bookname;
-      s.sections = vector<kmeal::section>();
+      s.sections = vector<uint64_t>();
     });
   }
 }
@@ -116,14 +116,18 @@ void kmeal::addsections(uint64_t bookid, std::string sectionname)
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
-  //todo 
-  //check if section name is already available
-  section sec;
-  sec.section_name = sectionname;
-  sec.items = vector<uint64_t>();
   
+  auto sectionid = sections.available_primary_key();
+  
+  auto setter = [&](auto &sec) {
+    sec.section_id = sectionid;
+    sec.section_name = sectionname;
+    sec.items = vector<uint64_t>();
+  };
+  
+  sections.emplace(_self, setter);
   books.modify(iter, _self, [&](auto &p) {
-    p.sections.push_back (sec); 
+    p.sections.push_back (sectionid); 
   });
   
 }
@@ -133,32 +137,23 @@ void kmeal::setsecorder(uint64_t bookid, uint64_t sectionid, uint64_t sortorder)
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
-  vector<section> sections = iter->sections;
-  eosio_assert(sections.cbegin() != sections.cend(), "no section values yet");
-  auto length = sections.size();
+  
+  vector<uint64_t> sec = iter->sections;
+  eosio_assert(sec.cbegin() != sec.cend(), "no section values yet");
+  auto length = sec.size();
   eosio_assert(sortorder < length, "wrong sort order");
 
   for (int index = 1; index < length; index++)
   {
-    eosio::print(sections[index].section_id);
-    eosio::print(sectionid);
-    eosio::print(sections[index].section_id == sectionid);
-    if (sections[index].section_id == sectionid)
+    if (sec[index] == sectionid)
     {
       eosio::print("found");
-
-      auto section = sections[index];
-      sections.erase(sections.begin() + index);
-      sections.insert(sections.begin() + sortorder, section);
-      // auto sortor = sections.begin() + sortorder;
-      // eosio::print(sortor);
+      auto section = sec[index];
+      sec.erase(sec.begin() + index);
+      sec.insert(sec.begin() + sortorder, section);
       break;
     }
   }
-    
-  // books.modify(iter, _self, [&](auto &p) {
-  //   p.sections= sections; 
-  // });
   
 }
 
@@ -167,18 +162,25 @@ void kmeal::delsec(uint64_t bookid, uint64_t secid)
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
-  vector<section> sections = iter->sections;
-  eosio_assert(sections.cbegin() != sections.cend(), "no section values yet");
+  vector<uint64_t> sec = iter->sections;
+  eosio_assert(sec.cbegin() != sec.cend(), "no section values yet");
+  
+  auto secItr = sections.find(secid);
+  eosio_assert(secItr != sections.end(), "section does not exist.");
 
-  auto length = sections.size();
+  //TODO check for exist order for the current section and then delete.
+  auto length = sec.size();
   for (int index = 1; index < length; index++)
   {
-    if (sections[index].section_id == secid)
+    if (sec[index] == secid)
     {
-      sections.erase(sections.begin() + index);
+      sec.erase(sec.begin() + index);
       break;
     }
   }
+  sections.erase(secItr);
+  
+  
 }
 
 void kmeal::createitem(name account,
@@ -252,32 +254,28 @@ void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, u
   auto i_iter = items.find(itemid);
   eosio_assert(i_iter != items.end(), "itemid not found");
   require_auth(i_iter->owner);
+  
   //loop through sections
-  auto sections = iter->sections;
-  for (int r = 0; r < sections.size(); r++)
+  auto secItr = sections.find(sectionid);
+  eosio_assert(secItr != sections.end(), "section does not exist.");
+  
+  vector<uint64_t> items = secItr->items;
+  auto itemid_itr = std::find(items.begin(), items.end(), itemid);
+  if (itemid_itr != items.end())
   {
-    if (sections[r].section_id == sectionid)
+    if (sortorder > items.size())
     {
-      vector<uint64_t> items = sections[r].items;
-      auto itemid_itr = std::find(items.begin(), items.end(), itemid);
-      if (itemid_itr != items.end())
-      {
-        if (sortorder > items.size())
-        {
-          items.push_back(itemid);
-        }
-        else
-        {
-          items.insert(items.begin() + sortorder, itemid);
-        }
-      }
-      else
-      {
-        items.erase(items.begin() + sortorder);
-        items.insert(items.begin() + sortorder, itemid);
-      }
-      break;
+      items.push_back(itemid);
     }
+    else
+    {
+      items.insert(items.begin() + sortorder, itemid);
+    }
+  }
+  else
+  {
+    items.erase(items.begin() + sortorder);
+    items.insert(items.begin() + sortorder, itemid);
   }
 }
 
@@ -306,21 +304,17 @@ void kmeal::listitem(
   eosio_assert(_book != books.end(), "book not found");
   require_auth(_book->owner.value);
 
-  auto sections = _book->sections;
-  bool sectionfound = false;
-  bool itemfound = false;
-  for (int r = 0; r < sections.size(); r++)
-  {
-    if (sections[r].section_id == section_id)
-    {
-      // todo
-      // check if the item is added to the section
-      // sectionfound = true;
-      // auto item = eosio::find(sections[r].items,item_id);
-    }
-  }
+ 
+  auto secItr = sections.find(section_id);
+  eosio_assert(secItr != sections.end(), "section does not exist.");
+  
+  
+  auto itemid_itr = std::find(secItr->items.begin(), secItr->items.end(), item_id);
+  eosio_assert(itemid_itr != secItr->items.end(), "item does not exist on the section");
+ 
   //check fields based on list type todo
   // get the listings and update
+  
   auto _listings = listings.find(_item->owner.value);
   if (_listings == listings.end())
   {
