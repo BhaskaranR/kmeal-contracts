@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun May 19 02:48:51 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun May 19 14:50:29 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -354,6 +354,52 @@
                 {
                     "name": "order_id",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "item",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "item_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "item_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "photo",
+                    "type": "string"
+                },
+                {
+                    "name": "spicy_level",
+                    "type": "uint64"
+                },
+                {
+                    "name": "vegetarian",
+                    "type": "uint64"
+                },
+                {
+                    "name": "cooking_time",
+                    "type": "uint64"
+                },
+                {
+                    "name": "is_active",
+                    "type": "uint64"
+                },
+                {
+                    "name": "types",
+                    "type": "string[]"
                 }
             ]
         },
@@ -740,6 +786,24 @@
             ]
         },
         {
+            "name": "section",
+            "base": "",
+            "fields": [
+                {
+                    "name": "section_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "section_name",
+                    "type": "string"
+                },
+                {
+                    "name": "items",
+                    "type": "uint64[]"
+                }
+            ]
+        },
+        {
             "name": "setarbiter",
             "base": "",
             "fields": [
@@ -1002,6 +1066,13 @@
             "key_types": []
         },
         {
+            "name": "items",
+            "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "listings",
             "type": "listing",
             "index_type": "i64",
@@ -1025,6 +1096,13 @@
         {
             "name": "restaurants",
             "type": "restaurant",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "sections",
+            "type": "section",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

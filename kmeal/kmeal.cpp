@@ -35,7 +35,6 @@ void kmeal::setuprest(const name account,
   eosio_assert(address.length() > 0, "address cannot be empty");
   eosio_assert(address2.length() > 0, "address cannot be empty");
   
-  
   //todos other validation
   //assign permission for owner to onboard..
   auto accsetter = [&](auto &s) {

@@ -129,7 +129,7 @@ private:
 
   typedef multi_index<"deposits"_n, deposit> deposit_table;
 
-  struct item
+  struct [[ eosio::table, eosio::contract("kmeal") ]] item
   {
     name owner;
     uint64_t item_id;
@@ -149,7 +149,7 @@ private:
 
   typedef multi_index<"items"_n, item> items_table;
 
-  struct section
+  struct [[ eosio::table, eosio::contract("kmeal") ]] section
   {
     uint64_t section_id;
     string section_name;
