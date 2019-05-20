@@ -33,5 +33,6 @@
         "__string": "cpp",
         "__locale": "cpp",
         "ios": "cpp"
-    }
+    },
+    "python.pythonPath": "/usr/local/bin/python3"
 }

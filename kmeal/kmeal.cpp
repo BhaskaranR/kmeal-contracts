@@ -161,25 +161,17 @@ void kmeal::delsec(uint64_t bookid, uint64_t secid)
   auto iter = books.find(bookid);
   eosio_assert(iter != books.end(), "bookid not found");
   require_auth(iter->owner);
-  vector<uint64_t> sec = iter->sections;
-  eosio_assert(sec.cbegin() != sec.cend(), "no section values yet");
-  
   auto secItr = sections.find(secid);
   eosio_assert(secItr != sections.end(), "section does not exist.");
-
   //TODO check for exist order for the current section and then delete.
-  auto length = sec.size();
-  for (int index = 1; index < length; index++)
-  {
-    if (sec[index] == secid)
-    {
-      sec.erase(sec.begin() + index);
-      break;
-    }
-  }
+  vector<uint64_t> sec = iter->sections;
+  std::vector<uint64_t>::iterator it = std::find(sec.begin(), sec.end(), secid);
+  int index = std::distance(sec.begin(), it);
+  sec.erase(sec.begin() + index);
+  books.modify(iter, _self, [&](auto &p) {
+    p.sections = sec;
+  });
   sections.erase(secItr);
-  
-  
 }
 
 void kmeal::createitem(name account,
