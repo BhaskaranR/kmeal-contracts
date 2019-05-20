@@ -29,8 +29,8 @@ public:
   const uint16_t BOTH_ACCEPTED_FLAG = BUYER_ORDERED_FLAG | SELLER_ACCEPTED_FLAG;
 
   const uint16_t DYNAMIC_LIST_TYPE_FLAG = 1 << 0;
-  const uint16_t GROUP_LIST_TYPE_FLAG = 1 << 1;
   const uint16_t REGULAR_LIST_TYPE_FLAG = 1 << 1;
+  const uint16_t GROUP_LIST_TYPE_FLAG = 1 << 2;
 
   const uint16_t DYNAMIC_ORDER_FLAG = 1 << 0;
   const uint16_t GROUP_ORDER_FLAG = 1 << 1;
@@ -193,7 +193,6 @@ private:
     float list_price;
     float min_price;
     uint64_t quantity;
-    uint32_t duration = 0; // event duration
     uint64_t sliding_rate;
     time_point_sec expires;
     uint64_t status;
@@ -347,15 +346,7 @@ public:
                     uint64_t cooking_time,
                     vector<string> types);
 
-  ACTION edititem(
-      uint64_t itemid,
-      string itemname,
-      string description,
-      string photo,
-      uint64_t spicy_level,
-      uint64_t vegetarian,
-      uint64_t cooking_time,
-      vector<string> types);
+  ACTION edititem(uint64_t itemid, string itemname, string description, string photo, uint64_t spicy_level, uint64_t vegetarian, uint64_t cooking_time, vector<string> types);
 
   ACTION addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
   
@@ -369,12 +360,9 @@ public:
       float list_price,
       float min_price,
       uint64_t quantity,
-      uint32_t duration, // event duration
       uint32_t expires,
-      uint64_t sliding_rate,
-      uint64_t status,
-      vector<listing_sides> sides,
-      bool isactive);
+      float sliding_rate,
+      vector<listing_sides> sides);
 
   ACTION placeorder(name buyer, name seller, string instructions, vector<orderdetail> detail);
 

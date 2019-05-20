@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon May 20 18:52:37 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon May 20 20:39:23 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -426,10 +426,6 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "duration",
-                    "type": "uint32"
-                },
-                {
                     "name": "sliding_rate",
                     "type": "uint64"
                 },
@@ -506,28 +502,16 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "duration",
-                    "type": "uint32"
-                },
-                {
                     "name": "expires",
                     "type": "uint32"
                 },
                 {
                     "name": "sliding_rate",
-                    "type": "uint64"
-                },
-                {
-                    "name": "status",
-                    "type": "uint64"
+                    "type": "float32"
                 },
                 {
                     "name": "sides",
                     "type": "listing_sides[]"
-                },
-                {
-                    "name": "isactive",
-                    "type": "bool"
                 }
             ]
         },
@@ -694,6 +678,24 @@
                 {
                     "name": "detail",
                     "type": "orderdetail[]"
+                }
+            ]
+        },
+        {
+            "name": "removefromsection",
+            "base": "",
+            "fields": [
+                {
+                    "name": "bookid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "sectionid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemid",
+                    "type": "uint64"
                 }
             ]
         },
@@ -995,6 +997,11 @@
         {
             "name": "placeorder",
             "type": "placeorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "removefromsection",
+            "type": "removefromsection",
             "ricardian_contract": ""
         },
         {

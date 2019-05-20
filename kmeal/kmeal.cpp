@@ -282,35 +282,29 @@ void kmeal::listitem(
     float list_price,
     float min_price,
     uint64_t quantity,
-    uint32_t duration, // event duration
     uint32_t expires,
-    uint64_t sliding_rate,
-    uint64_t status,
-    vector<listing_sides> sides,
-    bool isactive)
+    float sliding_rate,
+    vector<listing_sides> sides)
 {
 
   //auth the owner of the item
   auto _item = items.find(item_id);
-  eosio_assert(_item != items.end(), "restaurant owner not found");
+  eosio_assert(_item != items.end(), "item not found");
   require_auth(_item->owner.value);
 
   auto _book = books.find(book_id);
   eosio_assert(_book != books.end(), "book not found");
   require_auth(_book->owner.value);
 
- 
   auto secItr = sections.find(section_id);
   eosio_assert(secItr != sections.end(), "section does not exist.");
   
-  
   auto itemid_itr = std::find(secItr->items.begin(), secItr->items.end(), item_id);
-  eosio_assert(itemid_itr != secItr->items.end(), "item does not exist on the section");
+  eosio_assert(itemid_itr != secItr->items.end(), "item not added to the section");
  
-  //check fields based on list type todo
-  // get the listings and update
-  
+  //TODO validation for the listings
   auto _listings = listings.find(_item->owner.value);
+  
   if (_listings == listings.end())
   {
     listings.emplace(_self, [&](auto &s) {
@@ -320,12 +314,14 @@ void kmeal::listitem(
       s.section_id = section_id;
       s.list_type = list_type;
       s.list_price = list_price;
-      s.min_price = min_price;
-      s.quantity = quantity;
-      s.duration = duration;
-      s.expires = time_point_sec(now()) + expires;
+      if (list_type != REGULAR_LIST_TYPE_FLAG) {
+        s.min_price = min_price;
+        s.quantity = quantity;
+        s.expires = time_point_sec(now()) + expires;
+      }
       s.sliding_rate = sliding_rate;
-      s.status = status;
+      
+      s.status = 1;
       s.sides = sides;
       s.isactive = 1;
     });
