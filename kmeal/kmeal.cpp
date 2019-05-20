@@ -9,8 +9,8 @@ const name kmeal_account = "kmealcoinio1"_n;
 void kmeal::cleartables()
 {
   require_auth(_self);
-
-    cleanTable<books_table>();
+  cleanTable<sections_table>();
+  cleanTable<books_table>();
 }
 
 void kmeal::setuprest(const name account,
@@ -141,18 +141,16 @@ void kmeal::setsecorder(uint64_t bookid, uint64_t sectionid, uint64_t sortorder)
   eosio_assert(sec.cbegin() != sec.cend(), "no section values yet");
   auto length = sec.size();
   eosio_assert(sortorder < length, "wrong sort order");
-
-  for (int index = 1; index < length; index++)
-  {
-    if (sec[index] == sectionid)
-    {
-      eosio::print("found");
-      auto section = sec[index];
-      sec.erase(sec.begin() + index);
-      sec.insert(sec.begin() + sortorder, section);
-      break;
-    }
-  }
+  
+  std::vector<uint64_t>::iterator it = std::find(sec.begin(), sec.end(), sectionid);
+  int index = std::distance(sec.begin(), it);
+  sec.erase(sec.begin() + index);
+  sec.insert(sec.begin() + sortorder, sectionid);
+  
+   books.modify(iter, _self, [&](auto &p) {
+    p.sections = sec;
+  });
+ 
   
 }
 
