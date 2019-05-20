@@ -248,25 +248,31 @@ void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, u
   auto secItr = sections.find(sectionid);
   eosio_assert(secItr != sections.end(), "section does not exist.");
   
-  vector<uint64_t> items = secItr->items;
-  auto itemid_itr = std::find(items.begin(), items.end(), itemid);
-  if (itemid_itr != items.end())
-  {
-    if (sortorder > items.size())
-    {
-      items.push_back(itemid);
-    }
-    else
-    {
-      items.insert(items.begin() + sortorder, itemid);
-    }
+  vector<uint64_t> secitems = secItr->items;
+  auto itemid_itr = std::find(secitems.begin(), secitems.end(), itemid);
+  if (itemid_itr != secitems.end()) {
+    eosio::print("found");
+    std::vector<uint64_t>::iterator it = std::find(secitems.begin(), secitems.end(), itemid);
+    int index = std::distance(secitems.begin(), it);
+    secitems.erase(secitems.begin() + index);
+    secitems.insert(secitems.begin() + sortorder, itemid);
+    
+    sections.modify(secItr, _self, [&](auto &p) {
+      p.items = secitems;
+    });
   }
-  else
-  {
-    items.erase(items.begin() + sortorder);
-    items.insert(items.begin() + sortorder, itemid);
+  else {
+    eosio::print("not found");
+    sections.modify(secItr, _self, [&](auto &p) {
+      p.items.push_back(itemid);
+    });
   }
 }
+
+void kmeal::removefromsection(uint64_t bookid, uint64_t sectionid, uint64_t itemid) {
+  
+}
+
 
 void kmeal::listitem(
     uint64_t book_id,

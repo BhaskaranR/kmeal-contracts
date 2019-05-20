@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon May 20 17:44:51 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon May 20 18:52:37 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -326,24 +326,6 @@
                 {
                     "name": "types",
                     "type": "string[]"
-                }
-            ]
-        },
-        {
-            "name": "editsec",
-            "base": "",
-            "fields": [
-                {
-                    "name": "bookid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sectionname",
-                    "type": "string"
-                },
-                {
-                    "name": "sortorder",
-                    "type": "uint64"
                 }
             ]
         },
@@ -988,11 +970,6 @@
         {
             "name": "edititem",
             "type": "edititem",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "editsec",
-            "type": "editsec",
             "ricardian_contract": ""
         },
         {

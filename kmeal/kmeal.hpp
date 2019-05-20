@@ -332,7 +332,7 @@ public:
 
   ACTION addsections(uint64_t bookid, std::string sectionname);
 
-  ACTION editsec(uint64_t bookid, std::string sectionname, uint64_t sortorder);
+  // ACTION editsec(uint64_t bookid, std::string sectionname, uint64_t sortorder);
 
   ACTION setsecorder(uint64_t bookid, uint64_t sectionid, uint64_t sortorder);
 
@@ -358,6 +358,8 @@ public:
       vector<string> types);
 
   ACTION addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
+  
+  ACTION removefromsection(uint64_t bookid, uint64_t sectionid, uint64_t itemid);
 
   ACTION listitem(
       uint64_t book_id,
