@@ -141,13 +141,17 @@ private:
     uint64_t cooking_time;
     uint64_t is_active;
     vector<string> types;
+    
     uint64_t primary_key() const { return item_id; }
 
+    uint64_t get_owner()const  { return  owner.value; }    // 2
+    
     //secondary key index todo
     //EOSLIB_SERIALIZE(item, (item_id)(item_name)(description)(photo)(spicy_level)(vegetarian)(cooking_time)(types))
   };
 
-  typedef multi_index<"items"_n, item> items_table;
+  typedef multi_index<"items"_n, item,
+                    indexed_by<"itembyowner"_n,    const_mem_fun<item, uint64_t, &item::get_owner>>> items_table;
 
   struct [[ eosio::table, eosio::contract("kmeal") ]] section
   {
@@ -170,9 +174,13 @@ private:
 
     uint64_t primary_key() const { return book_id; }
     
+    
+    uint64_t get_owner()const  { return  owner.value; }  
   };
 
-  typedef multi_index<"books"_n, book> books_table;
+  typedef multi_index<"books"_n, book,
+          indexed_by<"booksbyowner"_n,    const_mem_fun<book, uint64_t, &book::get_owner>>
+  > books_table;
 
   struct listing_sides
   {
@@ -204,12 +212,20 @@ private:
     uint64_t get_expires() const { return expires.utc_seconds; }
 
     uint128_t get_price() const { return list_price; }
+    
+    
+    uint64_t get_owner()const  { return  owner.value; }  
+    
+    uint64_t get_listtype() const  { return  list_type; }
   };
   
 
   typedef multi_index<"listings"_n, listing,
+                      indexed_by<"byowner"_n,    const_mem_fun<listing, uint64_t, &listing::get_owner>>,
+                      indexed_by<"bylisttype"_n, const_mem_fun<listing, uint64_t, &listing::get_listtype>>,
                       indexed_by<"expires"_n, const_mem_fun<listing, uint64_t, &listing::get_expires>>,
-                      indexed_by<"byprice"_n, const_mem_fun<listing, uint128_t, &listing::get_price>>>
+                      indexed_by<"byprice"_n, const_mem_fun<listing, uint128_t, &listing::get_price>>
+                      >
       listings_table;
 
   struct [[ eosio::table, eosio::contract("kmeal") ]] orderdetail
