@@ -6,7 +6,7 @@
 #include "eosio.token.hpp"
 
 namespace eosio {
-
+  
 void token::create( name   issuer,
                     asset  maximum_supply )
 {

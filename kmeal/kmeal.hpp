@@ -139,41 +139,46 @@ private:
     uint64_t spicy_level;
     uint64_t vegetarian;
     uint64_t cooking_time;
-    uint64_t is_active;
+    uint8_t is_active;
     vector<string> types;
     
     uint64_t primary_key() const { return item_id; }
 
     uint64_t get_owner()const  { return  owner.value; }    // 2
     
-    //secondary key index todo
-    //EOSLIB_SERIALIZE(item, (item_id)(item_name)(description)(photo)(spicy_level)(vegetarian)(cooking_time)(types))
   };
 
   typedef multi_index<"items"_n, item,
                     indexed_by<"itembyowner"_n,    const_mem_fun<item, uint64_t, &item::get_owner>>> items_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] section
+  struct [[ eosio::table, eosio::contract("kmeal") ]] sec
   {
+    name owner;
     uint64_t section_id;
     string section_name;
     vector<uint64_t> items;
+    uint8_t is_active;
     uint64_t primary_key() const { return section_id; }
+    
+    
+    uint64_t get_owner()const  { return  owner.value; }    // 2
   };
   
   
-  typedef multi_index<"sections"_n, section> sections_table;
+  typedef multi_index<"sec"_n, sec,
+  indexed_by<"secbyowner"_n,    const_mem_fun<sec, uint64_t, &sec::get_owner>>
+  > sec_table;
 
   struct [[ eosio::table, eosio::contract("kmeal") ]] book
   {
     uint64_t book_id;
     name owner;
     string book_name;
+    uint8_t is_active;
     
     vector<uint64_t> sections;
 
     uint64_t primary_key() const { return book_id; }
-    
     
     uint64_t get_owner()const  { return  owner.value; }  
   };
@@ -198,6 +203,7 @@ private:
     uint64_t book_id;
     uint64_t item_id;
     uint64_t section_id;
+    //uint8_t is_active;
     float list_price;
     float min_price;
     uint64_t quantity;
@@ -281,7 +287,7 @@ private:
 
   items_table items;
   deposit_table deposits;
-  sections_table sections;
+  sec_table sections;
   books_table books;
   listings_table listings;
   restaurants_table restaurants;
@@ -344,6 +350,8 @@ public:
   ACTION delrest(const name account);
 
   ACTION createbook(const name account, const string bookname);
+  
+  ACTION delbook(const uint64_t bookid);
 
   ACTION addsections(uint64_t bookid, std::string sectionname);
 

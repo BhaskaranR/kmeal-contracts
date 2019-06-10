@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 23:01:28 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Jun  9 20:59:43 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -125,6 +125,10 @@
                     "type": "string"
                 },
                 {
+                    "name": "is_active",
+                    "type": "uint8"
+                },
+                {
                     "name": "sections",
                     "type": "uint64[]"
                 }
@@ -214,6 +218,16 @@
                 {
                     "name": "account",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "delbook",
+            "base": "",
+            "fields": [
+                {
+                    "name": "bookid",
+                    "type": "uint64"
                 }
             ]
         },
@@ -377,7 +391,7 @@
                 },
                 {
                     "name": "is_active",
-                    "type": "uint64"
+                    "type": "uint8"
                 },
                 {
                     "name": "types",
@@ -770,9 +784,13 @@
             ]
         },
         {
-            "name": "section",
+            "name": "sec",
             "base": "",
             "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
                 {
                     "name": "section_id",
                     "type": "uint64"
@@ -784,6 +802,10 @@
                 {
                     "name": "items",
                     "type": "uint64[]"
+                },
+                {
+                    "name": "is_active",
+                    "type": "uint8"
                 }
             ]
         },
@@ -950,6 +972,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "delbook",
+            "type": "delbook",
+            "ricardian_contract": ""
+        },
+        {
             "name": "delivered",
             "type": "delivered",
             "ricardian_contract": ""
@@ -1085,8 +1112,8 @@
             "key_types": []
         },
         {
-            "name": "sections",
-            "type": "section",
+            "name": "sec",
+            "type": "sec",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
