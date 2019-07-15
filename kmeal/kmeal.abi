@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Jun  9 20:59:43 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Jul 14 20:19:21 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -208,6 +208,14 @@
                 {
                     "name": "types",
                     "type": "string[]"
+                },
+                {
+                    "name": "book_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "section_id",
+                    "type": "uint64"
                 }
             ]
         },
@@ -696,24 +704,6 @@
             ]
         },
         {
-            "name": "removefromsection",
-            "base": "",
-            "fields": [
-                {
-                    "name": "bookid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sectionid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "itemid",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "restaurant",
             "base": "",
             "fields": [
@@ -1024,11 +1014,6 @@
         {
             "name": "placeorder",
             "type": "placeorder",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "removefromsection",
-            "type": "removefromsection",
             "ricardian_contract": ""
         },
         {

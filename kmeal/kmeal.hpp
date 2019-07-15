@@ -62,7 +62,7 @@ private:
     string      memo;
   };
 
-  struct [[eosio::table, eosio::contract("kmeal")]] account
+  TABLE account
   {
     name owner;
     asset balance;
@@ -72,7 +72,7 @@ private:
 
   typedef eosio::multi_index<"accounts"_n, account> accounts_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] restaurant
+  TABLE restaurant
   {
     name owner;
     string name;
@@ -93,12 +93,11 @@ private:
 
     uint64_t primary_key() const { return owner.value; }
 
-    // EOSLIB_SERIALIZE(restaurant, (owner)(name)(description)(phone)(rating)(address)(address2)(city)(state)(postalCode)(latitude)(longitude)(logo)(timeofoperation)(categories)(is_active))
   };
 
   typedef multi_index<"restaurants"_n, restaurant> restaurants_table;
 
-  struct [[eosio::table("arbiters")]] arbiter
+  TABLE arbiter
   {
     name account;
     string contact_name;
@@ -119,7 +118,7 @@ private:
       indexed_by<name("active"), const_mem_fun<arbiter, uint64_t, &arbiter::get_is_active>>>
       arbiters_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] deposit
+  TABLE deposit
   {
     name owner;
     asset balance;
@@ -129,7 +128,7 @@ private:
 
   typedef multi_index<"deposits"_n, deposit> deposit_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] item
+  TABLE item
   {
     name owner;
     uint64_t item_id;
@@ -151,7 +150,7 @@ private:
   typedef multi_index<"items"_n, item,
                     indexed_by<"itembyowner"_n,    const_mem_fun<item, uint64_t, &item::get_owner>>> items_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] sec
+  TABLE sec
   {
     name owner;
     uint64_t section_id;
@@ -169,7 +168,7 @@ private:
   indexed_by<"secbyowner"_n,    const_mem_fun<sec, uint64_t, &sec::get_owner>>
   > sec_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] book
+  TABLE book
   {
     uint64_t book_id;
     name owner;
@@ -195,7 +194,7 @@ private:
     float list_price;
   };
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] listing
+  TABLE listing
   {
     name owner;
     uint64_t listing_id;
@@ -234,7 +233,7 @@ private:
                       >
       listings_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] orderdetail
+  TABLE orderdetail
   {
     uint64_t order_detail_id;
     uint64_t listing_id;
@@ -252,7 +251,7 @@ private:
                       indexed_by<"bylistingid"_n, const_mem_fun<orderdetail, uint64_t, &orderdetail::by_listing_id>>>
       orderdetail_table;
 
-  struct [[ eosio::table, eosio::contract("kmeal") ]] order
+  TABLE order
   {
     uint64_t order_id;
     name buyer;
@@ -361,20 +360,25 @@ public:
 
   ACTION delsec(uint64_t bookid, uint64_t secid);
 
-  ACTION createitem(name account,
+  ACTION createitem(
+                    name account,
                     string itemname,
                     string description,
                     string photo,
                     uint64_t spicy_level,
                     uint64_t vegetarian,
                     uint64_t cooking_time,
-                    vector<string> types);
+                    vector<string> types,
+                    uint64_t book_id = -1,
+                    uint64_t section_id = -1);
 
   ACTION edititem(uint64_t itemid, string itemname, string description, string photo, uint64_t spicy_level, uint64_t vegetarian, uint64_t cooking_time, vector<string> types);
 
   ACTION addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
   
-  ACTION removefromsection(uint64_t bookid, uint64_t sectionid, uint64_t itemid);
+  void addItemToSection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
+  
+  // ACTION removefromsection(uint64_t bookid, uint64_t sectionid, uint64_t itemid);
 
   ACTION listitem(
       uint64_t book_id,
