@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Jul 14 20:19:21 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jul 18 01:55:18 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -235,6 +235,26 @@
             "fields": [
                 {
                     "name": "bookid",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "deletelisting",
+            "base": "",
+            "fields": [
+                {
+                    "name": "listing_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "delitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "itemid",
                     "type": "uint64"
                 }
             ]
@@ -704,6 +724,20 @@
             ]
         },
         {
+            "name": "removefromsec",
+            "base": "",
+            "fields": [
+                {
+                    "name": "sectionid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemid",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "restaurant",
             "base": "",
             "fields": [
@@ -967,6 +1001,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "deletelisting",
+            "type": "deletelisting",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delitem",
+            "type": "delitem",
+            "ricardian_contract": ""
+        },
+        {
             "name": "delivered",
             "type": "delivered",
             "ricardian_contract": ""
@@ -1014,6 +1058,11 @@
         {
             "name": "placeorder",
             "type": "placeorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "removefromsec",
+            "type": "removefromsec",
             "ricardian_contract": ""
         },
         {

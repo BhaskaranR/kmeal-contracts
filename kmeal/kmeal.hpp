@@ -218,16 +218,19 @@ private:
 
     uint128_t get_price() const { return list_price; }
     
+    uint64_t get_itemid() const { return item_id; }
     
     uint64_t get_owner()const  { return  owner.value; }  
     
     uint64_t get_listtype() const  { return  list_type; }
+    
   };
   
 
   typedef multi_index<"listings"_n, listing,
                       indexed_by<"byowner"_n,    const_mem_fun<listing, uint64_t, &listing::get_owner>>,
                       indexed_by<"bylisttype"_n, const_mem_fun<listing, uint64_t, &listing::get_listtype>>,
+                      indexed_by<"byitemid"_n, const_mem_fun<listing, uint64_t, &listing::get_itemid>>,
                       indexed_by<"expires"_n, const_mem_fun<listing, uint64_t, &listing::get_expires>>,
                       indexed_by<"byprice"_n, const_mem_fun<listing, uint128_t, &listing::get_price>>
                       >
@@ -345,10 +348,19 @@ public:
                   const string logo,
                   const vector<string> categories,
                   const string timeofoperation);
+  
 
   ACTION delrest(const name account);
 
   ACTION createbook(const name account, const string bookname);
+  
+  void checkOrdersForListings(uint64_t listingid) ;
+  
+  void checkListingsForItem(uint64_t itemid);
+  
+  void checkItemsForSec(uint64_t sectionid);
+  
+  void checkSectionsForBook(uint64_t bookid);
   
   ACTION delbook(const uint64_t bookid);
 
@@ -371,15 +383,19 @@ public:
                     vector<string> types,
                     uint64_t book_id = -1,
                     uint64_t section_id = -1);
+                    
+
+  ACTION delitem(uint64_t itemid);
 
   ACTION edititem(uint64_t itemid, string itemname, string description, string photo, uint64_t spicy_level, uint64_t vegetarian, uint64_t cooking_time, vector<string> types);
+  
 
   ACTION addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
   
   void addItemToSection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
   
-  // ACTION removefromsection(uint64_t bookid, uint64_t sectionid, uint64_t itemid);
-
+  ACTION removefromsec(uint64_t sectionid, uint64_t itemid);
+  
   ACTION listitem(
       uint64_t book_id,
       uint64_t item_id,
@@ -391,6 +407,8 @@ public:
       uint32_t expires,
       float sliding_rate,
       vector<listing_sides> sides);
+      
+  ACTION deletelisting(uint64_t listing_id);
 
   ACTION placeorder(name buyer, name seller, string instructions, vector<orderdetail> detail);
 
