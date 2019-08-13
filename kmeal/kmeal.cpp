@@ -32,6 +32,7 @@ void kmeal::setuprest(const name account,
                       const vector<string> categories,
                       const string timeofoperation)
 {
+  require_auth(_self);
   eosio_assert(is_account(account), "account does not exist");
   eosio_assert(name.length() > 0, "name cannot be empty");
   eosio_assert(phone.length() > 0, "phone cannot be empty");
@@ -93,6 +94,7 @@ void kmeal::delrest(name account)
 void kmeal::createbook(const name account, const string bookname)
 {
   require_auth(account);
+
   auto iter = restaurants.find(account.value);
   eosio_assert(iter != restaurants.end(), "restaurant owner not found");
   auto _books = books.find(account.value);
@@ -110,6 +112,7 @@ void kmeal::createbook(const name account, const string bookname)
 
   void kmeal::delbook(const uint64_t bookid)
   {
+    
     eosio::print(bookid);
     auto iter = books.find(bookid);
     eosio_assert(iter != books.end(), "bookid not found");
@@ -117,6 +120,7 @@ void kmeal::createbook(const name account, const string bookname)
     
     vector<uint64_t>  sec = iter->sections;
     eosio_assert( sec.size() == 0, "cannot delete book");
+    
     books.erase(iter);
   }
   
