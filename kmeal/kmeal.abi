@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Aug  4 16:51:49 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Aug 16 18:36:18 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -35,34 +35,12 @@
             "base": "",
             "fields": [
                 {
-                    "name": "bookid",
-                    "type": "uint64"
+                    "name": "account",
+                    "type": "name"
                 },
                 {
                     "name": "sectionname",
                     "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "addtosection",
-            "base": "",
-            "fields": [
-                {
-                    "name": "bookid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sectionid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "itemid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sortorder",
-                    "type": "uint64"
                 }
             ]
         },
@@ -109,32 +87,6 @@
             ]
         },
         {
-            "name": "book",
-            "base": "",
-            "fields": [
-                {
-                    "name": "book_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "book_name",
-                    "type": "string"
-                },
-                {
-                    "name": "is_active",
-                    "type": "uint8"
-                },
-                {
-                    "name": "sections",
-                    "type": "uint64[]"
-                }
-            ]
-        },
-        {
             "name": "cancel",
             "base": "",
             "fields": [
@@ -156,20 +108,6 @@
                 {
                     "name": "owner",
                     "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "createbook",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                },
-                {
-                    "name": "bookname",
-                    "type": "string"
                 }
             ]
         },
@@ -208,14 +146,6 @@
                 {
                     "name": "types",
                     "type": "string[]"
-                },
-                {
-                    "name": "book_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "section_id",
-                    "type": "uint64"
                 }
             ]
         },
@@ -226,16 +156,6 @@
                 {
                     "name": "account",
                     "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "delbook",
-            "base": "",
-            "fields": [
-                {
-                    "name": "bookid",
-                    "type": "uint64"
                 }
             ]
         },
@@ -287,10 +207,6 @@
             "name": "delsec",
             "base": "",
             "fields": [
-                {
-                    "name": "bookid",
-                    "type": "uint64"
-                },
                 {
                     "name": "secid",
                     "type": "uint64"
@@ -372,6 +288,68 @@
             ]
         },
         {
+            "name": "editrest",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "address",
+                    "type": "string"
+                },
+                {
+                    "name": "address2",
+                    "type": "string"
+                },
+                {
+                    "name": "city",
+                    "type": "string"
+                },
+                {
+                    "name": "state",
+                    "type": "string"
+                },
+                {
+                    "name": "postalCode",
+                    "type": "string"
+                },
+                {
+                    "name": "latitude",
+                    "type": "float64"
+                },
+                {
+                    "name": "longitude",
+                    "type": "float64"
+                },
+                {
+                    "name": "logo",
+                    "type": "string"
+                },
+                {
+                    "name": "categories",
+                    "type": "string[]"
+                },
+                {
+                    "name": "timeofoperation",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "goodsrcvd",
             "base": "",
             "fields": [
@@ -444,10 +422,6 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "book_id",
-                    "type": "uint64"
-                },
-                {
                     "name": "item_id",
                     "type": "uint64"
                 },
@@ -515,10 +489,6 @@
             "name": "listitem",
             "base": "",
             "fields": [
-                {
-                    "name": "book_id",
-                    "type": "uint64"
-                },
                 {
                     "name": "item_id",
                     "type": "uint64"
@@ -724,20 +694,6 @@
             ]
         },
         {
-            "name": "removefromsec",
-            "base": "",
-            "fields": [
-                {
-                    "name": "sectionid",
-                    "type": "uint64"
-                },
-                {
-                    "name": "itemid",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "restaurant",
             "base": "",
             "fields": [
@@ -824,10 +780,6 @@
                     "type": "string"
                 },
                 {
-                    "name": "items",
-                    "type": "uint64[]"
-                },
-                {
                     "name": "is_active",
                     "type": "uint8"
                 }
@@ -871,10 +823,6 @@
             "name": "setsecorder",
             "base": "",
             "fields": [
-                {
-                    "name": "bookid",
-                    "type": "uint64"
-                },
                 {
                     "name": "sectionid",
                     "type": "uint64"
@@ -961,11 +909,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "addtosection",
-            "type": "addtosection",
-            "ricardian_contract": ""
-        },
-        {
             "name": "cancel",
             "type": "cancel",
             "ricardian_contract": ""
@@ -981,11 +924,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "createbook",
-            "type": "createbook",
-            "ricardian_contract": ""
-        },
-        {
             "name": "createitem",
             "type": "createitem",
             "ricardian_contract": ""
@@ -993,11 +931,6 @@
         {
             "name": "delarbiter",
             "type": "delarbiter",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "delbook",
-            "type": "delbook",
             "ricardian_contract": ""
         },
         {
@@ -1036,6 +969,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "editrest",
+            "type": "editrest",
+            "ricardian_contract": ""
+        },
+        {
             "name": "goodsrcvd",
             "type": "goodsrcvd",
             "ricardian_contract": ""
@@ -1058,11 +996,6 @@
         {
             "name": "placeorder",
             "type": "placeorder",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "removefromsec",
-            "type": "removefromsec",
             "ricardian_contract": ""
         },
         {
@@ -1092,13 +1025,6 @@
         {
             "name": "arbiters",
             "type": "arbiter",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "books",
-            "type": "book",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

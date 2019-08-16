@@ -32,7 +32,11 @@
         "iosfwd": "cpp",
         "__string": "cpp",
         "__locale": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "__hash_table": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "valarray": "cpp"
     },
     "python.pythonPath": "/usr/local/bin/python3"
 }

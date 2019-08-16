@@ -89,6 +89,7 @@ private:
     string logo;
     string timeofoperation;
     vector<string> categories;
+
     uint8_t is_active;
 
     uint64_t primary_key() const { return owner.value; }
@@ -155,7 +156,6 @@ private:
     name owner;
     uint64_t section_id;
     string section_name;
-    vector<uint64_t> items;
     uint8_t is_active;
     uint64_t primary_key() const { return section_id; }
     
@@ -167,24 +167,6 @@ private:
   typedef multi_index<"sec"_n, sec,
   indexed_by<"secbyowner"_n,    const_mem_fun<sec, uint64_t, &sec::get_owner>>
   > sec_table;
-
-  TABLE book
-  {
-    uint64_t book_id;
-    name owner;
-    string book_name;
-    uint8_t is_active;
-    
-    vector<uint64_t> sections;
-
-    uint64_t primary_key() const { return book_id; }
-    
-    uint64_t get_owner()const  { return  owner.value; }  
-  };
-
-  typedef multi_index<"books"_n, book,
-          indexed_by<"booksbyowner"_n,    const_mem_fun<book, uint64_t, &book::get_owner>>
-  > books_table;
 
   struct listing_sides
   {
@@ -199,10 +181,8 @@ private:
     name owner;
     uint64_t listing_id;
     uint64_t list_type;
-    uint64_t book_id;
     uint64_t item_id;
     uint64_t section_id;
-    //uint8_t is_active;
     float list_price;
     float min_price;
     uint64_t quantity;
@@ -290,7 +270,6 @@ private:
   items_table items;
   deposit_table deposits;
   sec_table sections;
-  books_table books;
   listings_table listings;
   restaurants_table restaurants;
   accounts_table accounts;
@@ -305,7 +284,6 @@ public:
         accounts(self, self.value),
         items(self, self.value),
         sections(self, self.value),
-        books(self, self.value),
         listings(self, self.value),
         restaurants(self, self.value),
         arbiters(self, self.value),
@@ -348,11 +326,25 @@ public:
                   const string logo,
                   const vector<string> categories,
                   const string timeofoperation);
+                  
+                  
+  ACTION editrest(const name account,
+                  const string name,
+                  const string description,
+                  const string phone,
+                  const string address,
+                  const string address2,
+                  const string city,
+                  const string state,
+                  const string postalCode,
+                  const double latitude,
+                  const double longitude,
+                  const string logo,
+                  const vector<string> categories,
+                  const string timeofoperation);                  
   
 
   ACTION delrest(const name account);
-
-  ACTION createbook(const name account, const string bookname);
   
   void checkOrdersForListings(uint64_t listingid) ;
   
@@ -360,17 +352,14 @@ public:
   
   void checkItemsForSec(uint64_t sectionid);
   
-  void checkSectionsForBook(uint64_t bookid);
-  
-  ACTION delbook(const uint64_t bookid);
-
-  ACTION addsections(uint64_t bookid, std::string sectionname);
+   
+  ACTION addsections(const name account, std::string sectionname);
 
   // ACTION editsec(uint64_t bookid, std::string sectionname, uint64_t sortorder);
 
-  ACTION setsecorder(uint64_t bookid, uint64_t sectionid, uint64_t sortorder);
+  ACTION setsecorder(uint64_t sectionid, uint64_t sortorder);
 
-  ACTION delsec(uint64_t bookid, uint64_t secid);
+  ACTION delsec(uint64_t secid);
 
   ACTION createitem(
                     name account,
@@ -380,24 +369,14 @@ public:
                     uint64_t spicy_level,
                     uint64_t vegetarian,
                     uint64_t cooking_time,
-                    vector<string> types,
-                    uint64_t book_id = -1,
-                    uint64_t section_id = -1);
+                    vector<string> types);
                     
 
   ACTION delitem(uint64_t itemid);
 
   ACTION edititem(uint64_t itemid, string itemname, string description, string photo, uint64_t spicy_level, uint64_t vegetarian, uint64_t cooking_time, vector<string> types);
   
-
-  ACTION addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
-  
-  void addItemToSection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder);
-  
-  ACTION removefromsec(uint64_t sectionid, uint64_t itemid);
-  
   ACTION listitem(
-      uint64_t book_id,
       uint64_t item_id,
       uint64_t section_id,
       uint64_t list_type,

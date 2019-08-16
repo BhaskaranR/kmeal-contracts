@@ -10,11 +10,10 @@ void kmeal::cleartables()
 {
   require_auth(_self);
   cleanTable<listings_table>();
-  // cleanTable<items_table>();  
-  // cleanTable<sec_table>();
-  // cleanTable<books_table>();
-  // cleanTable<restaurants_table>();
-  // cleanTable<accounts_table>();
+  cleanTable<items_table>();  
+  cleanTable<sec_table>();
+  cleanTable<restaurants_table>();
+  cleanTable<accounts_table>();
 }
 
 void kmeal::setuprest(const name account,
@@ -61,22 +60,80 @@ void kmeal::setuprest(const name account,
   };
 
   auto _restaurant = restaurants.find(account.value);
+  eosio_assert(_restaurant == restaurants.end(), "already signed up");
   if (_restaurant == restaurants.end())
   {
     auto _account = accounts.find(account.value);
     eosio_assert(_account == accounts.end(), "already signed up as customer");
     auto itr = accounts.find(account.value);
-    
     accounts.emplace(_self, [&](auto &a) {
       a.owner = account;
       a.balance = asset{0, kmeal_symbol};
     });
-    restaurants.emplace(account, setter);
+    restaurants.emplace(_self, setter);
+    
+    sections.emplace(_self, [&](auto &s) {
+      s.section_id = sections.available_primary_key();
+      s.owner = account;
+      s.section_name = "kmeal";
+      s.is_active = 1;
+    });
   }
-  else
-  {
-    restaurants.modify(*_restaurant, account, setter);
-  }
+}
+
+//todo edit rest
+void kmeal::editrest(const name account,
+                      const string name,
+                      const string description,
+                      const string phone,
+                      const string address,
+                      const string address2,
+                      const string city,
+                      const string state,
+                      const string postalCode,
+                      const double latitude,
+                      const double longitude,
+                      const string logo,
+                      const vector<string> categories,
+                      const string timeofoperation)
+{
+  eosio::print(account.value);
+  // require_auth(account);
+  // eosio_assert(is_account(account), "account does not exist");
+  // eosio_assert(name.length() > 0, "name cannot be empty");
+  // eosio_assert(phone.length() > 0, "phone cannot be empty");
+  // eosio_assert(address.length() > 0, "address cannot be empty");
+  
+  // eosio::print(account.value);
+  // // eosio_assert(address2.length() > 0, "address cannot be empty");
+  
+  // //todos other validation
+  // //assign permission for owner to onboard..
+  
+  // auto setter = [&](auto &s) {
+  //   s.owner = account;
+  //   s.name = name;
+  //   s.description = description;
+  //   s.phone = phone;
+  //   s.address = address;
+  //   s.address2 = address2;
+  //   s.city = city;
+  //   s.state = state;
+  //   s.postalCode = postalCode;
+  //   s.latitude = latitude;
+  //   s.longitude = longitude;
+  //   s.logo = logo;
+  //   s.categories = categories;
+  //   s.timeofoperation = timeofoperation;
+  //   s.is_active = 1;
+  // };
+
+  // auto _restaurant = restaurants.find(account.value);
+  // eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
+  // if (_restaurant != restaurants.end())
+  // {
+  //   restaurants.modify(*_restaurant, account, setter);
+  // }
 }
 
 void kmeal::delrest(name account)
@@ -91,133 +148,58 @@ void kmeal::delrest(name account)
   });
 }
 
-void kmeal::createbook(const name account, const string bookname)
+void kmeal::addsections(const name account, const string sectionname)
 {
   require_auth(account);
 
   auto iter = restaurants.find(account.value);
   eosio_assert(iter != restaurants.end(), "restaurant owner not found");
-  auto _books = books.find(account.value);
-  if (_books == books.end())
+  auto _sections = sections.find(account.value);
+  if (_sections == sections.end())
   {
-    books.emplace(_self, [&](auto &s) {
-      s.book_id = books.available_primary_key();
+    sections.emplace(_self, [&](auto &s) {
+      s.section_id = sections.available_primary_key();
       s.owner = account;
-      s.book_name = bookname;
+      s.section_name = sectionname;
       s.is_active = 1;
-      s.sections = vector<uint64_t>();
     });
   }
 }
-
-  void kmeal::delbook(const uint64_t bookid)
-  {
-    
-    eosio::print(bookid);
-    auto iter = books.find(bookid);
-    eosio_assert(iter != books.end(), "bookid not found");
-    require_auth(iter->owner);
-    
-    vector<uint64_t>  sec = iter->sections;
-    eosio_assert( sec.size() == 0, "cannot delete book");
-    
-    books.erase(iter);
-  }
   
-  
-  void kmeal::addsections(uint64_t bookid, std::string sectionname)
+  void kmeal::setsecorder(uint64_t sectionid, uint64_t sortorder)
   {
-    auto iter = books.find(bookid);
-    eosio_assert(iter != books.end(), "bookid not found");
-    require_auth(iter->owner);
+    // todo
+    // auto iter = sections.find(sectionid);
+    // eosio_assert(iter != sectionid.end(), "sectionid not found");
+    // require_auth(iter->owner);
     
-    auto sectionid = sections.available_primary_key();
+    // auto length = sec.size();
+    // eosio_assert(sortorder < length, "wrong sort order");
     
-    auto setter = [&](auto &sec) {
-      sec.section_id = sectionid;
-      sec.section_name = sectionname;
-      sec.is_active = 1;
-      sec.owner = iter->owner;
-      sec.items = vector<uint64_t>();
-    };
+    // std::vector<uint64_t>::iterator it = std::find(sec.begin(), sec.end(), sectionid);
+    // int index = std::distance(sec.begin(), it);
+    // sec.erase(sec.begin() + index);
+    // sec.insert(sec.begin() + sortorder, sectionid);
     
-    sections.emplace(_self, setter);
-    books.modify(iter, _self, [&](auto &p) {
-      p.sections.push_back (sectionid); 
-    });
-  }
-  
-  void kmeal::setsecorder(uint64_t bookid, uint64_t sectionid, uint64_t sortorder)
-  {
-    auto iter = books.find(bookid);
-    eosio_assert(iter != books.end(), "bookid not found");
-    require_auth(iter->owner);
-    
-    vector<uint64_t> sec = iter->sections;
-    eosio_assert(sec.cbegin() != sec.cend(), "no section values yet");
-    auto length = sec.size();
-    eosio_assert(sortorder < length, "wrong sort order");
-    
-    std::vector<uint64_t>::iterator it = std::find(sec.begin(), sec.end(), sectionid);
-    int index = std::distance(sec.begin(), it);
-    sec.erase(sec.begin() + index);
-    sec.insert(sec.begin() + sortorder, sectionid);
-    
-     books.modify(iter, _self, [&](auto &p) {
-      p.sections = sec;
-    });
+    //  books.modify(iter, _self, [&](auto &p) {
+    //   p.sections = sec;
+    // });
    
-    
   }
   
-  void kmeal::delsec(uint64_t bookid, uint64_t secid)
+  void kmeal::delsec(uint64_t secid)
   {
-    auto iter = books.find(bookid);
-    eosio_assert(iter != books.end(), "bookid not found");
-    require_auth(iter->owner);
     auto secItr = sections.find(secid);
     eosio_assert(secItr != sections.end(), "section does not exist.");
-    
-    vector<uint64_t>  items = secItr->items;
-    eosio_assert( items.size() == 0, "cannot delete sections");
-    
-    vector<uint64_t> sec = iter->sections;
-    std::vector<uint64_t>::iterator it = std::find(sec.begin(), sec.end(), secid);
-    
-    int index = std::distance(sec.begin(), it);
-    sec.erase(sec.begin() + index);
-    books.modify(iter, _self, [&](auto &p) {
-      p.sections = sec;
-    });
+    require_auth(secItr->owner);
+
+    // todo check in listings
+    // vector<uint64_t>  items = secItr->items;
+    // eosio_assert( items.size() == 0, "cannot delete sections");
     sections.erase(secItr);
   }
   
   
-  void kmeal::addItemToSection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder) {
-    
-    auto secItr = sections.find(sectionid);
-    eosio_assert(secItr != sections.end(), "section does not exist.");
-    
-    vector<uint64_t> secitems = secItr->items;
-    auto itemid_itr = std::find(secitems.begin(), secitems.end(), itemid);
-    if (itemid_itr != secitems.end()) {
-      eosio::print("found");
-      std::vector<uint64_t>::iterator it = std::find(secitems.begin(), secitems.end(), itemid);
-      int index = std::distance(secitems.begin(), it);
-      secitems.erase(secitems.begin() + index);
-      secitems.insert(secitems.begin() + sortorder, itemid);
-      
-      sections.modify(secItr, _self, [&](auto &p) {
-        p.items = secitems;
-      });
-    }
-    else {
-      eosio::print("not found");
-      sections.modify(secItr, _self, [&](auto &p) {
-        p.items.push_back(itemid);
-      });
-    }
-  }
   
   void kmeal::createitem(name account,
                         string itemname,
@@ -226,9 +208,7 @@ void kmeal::createbook(const name account, const string bookname)
                         uint64_t spicy_level,
                         uint64_t vegetarian,
                         uint64_t cooking_time,
-                        vector<string> types,
-                        uint64_t book_id,
-                        uint64_t section_id)
+                        vector<string> types)
   {
     //todo  validate other inputs
     auto iter = restaurants.find(account.value);
@@ -252,16 +232,6 @@ void kmeal::createbook(const name account, const string bookname)
         s.types = types;
         s.is_active = 1;
       });
-      
-      if (book_id != -1 && section_id != -1) {
-         eosio::print("bookid : ", book_id, ", section_id : ", section_id , ", key : " ,  key);
-         auto booksiter = books.find(book_id);
-         eosio_assert(booksiter != books.end(), "bookid not found");
-         require_auth(booksiter->owner);
-         
-         addItemToSection(book_id, section_id, key, 0);
-      }
-      
     }
   }
   
@@ -303,43 +273,8 @@ void kmeal::createbook(const name account, const string bookname)
     items.erase(iter);
   }
   
-  void kmeal::addtosection(uint64_t bookid, uint64_t sectionid, uint64_t itemid, uint64_t sortorder)
-  {
-    //auth the owner of bookid
-    auto iter = books.find(bookid);
-    eosio_assert(iter != books.end(), "bookid not found");
-    require_auth(iter->owner);
-  
-    //auth the owner of itemid
-    auto i_iter = items.find(itemid);
-    eosio_assert(i_iter != items.end(), "itemid not found");
-    require_auth(i_iter->owner);
-    addItemToSection(bookid, sectionid, itemid, sortorder);
-    //loop through sections
-   
-  }
-  
-  void kmeal::removefromsec(uint64_t sectionid, uint64_t itemid) {
-    
-     auto iter = items.find(itemid);
-    eosio_assert(iter != items.end(), "itemid not found");
-    require_auth(iter->owner);
-    
-    auto secItr = sections.find(sectionid);
-    eosio_assert(secItr != sections.end(), "section does not exist.");
-    
-    
-    vector<uint64_t> itemItr = secItr->items;
-    std::vector<uint64_t>::iterator it = std::find(itemItr.begin(), itemItr.end(), itemid);
-    
-    int index = std::distance(itemItr.begin(), it);
-    itemItr.erase(itemItr.begin() + index);
-    
-  }
-  
   
   void kmeal::listitem(
-      uint64_t book_id,
       uint64_t item_id,
       uint64_t section_id,
       uint64_t list_type,
@@ -356,16 +291,10 @@ void kmeal::createbook(const name account, const string bookname)
     eosio_assert(_item != items.end(), "item not found");
     require_auth(_item->owner.value);
   
-    auto _book = books.find(book_id);
-    eosio_assert(_book != books.end(), "book not found");
-    require_auth(_book->owner.value);
-  
     auto secItr = sections.find(section_id);
     eosio_assert(secItr != sections.end(), "section does not exist.");
-    
-    auto itemid_itr = std::find(secItr->items.begin(), secItr->items.end(), item_id);
-    eosio_assert(itemid_itr != secItr->items.end(), "item not added to the section");
-   
+    require_auth(secItr->owner.value);
+  
     //TODO validation for the listings
     auto _listings = listings.find(_item->owner.value);
     
@@ -373,7 +302,6 @@ void kmeal::createbook(const name account, const string bookname)
     {
       listings.emplace(_self, [&](auto &s) {
         s.listing_id = listings.available_primary_key();
-        s.book_id = book_id;
         s.item_id = item_id;
         s.section_id = section_id;
         s.list_type = list_type;
@@ -384,7 +312,6 @@ void kmeal::createbook(const name account, const string bookname)
           s.expires = time_point_sec(now()) + expires;
         }
         s.sliding_rate = sliding_rate;
-        
         s.status = 1;
         s.sides = sides;
         s.isactive = 1;
@@ -791,8 +718,8 @@ extern "C"
       {
         EOSIO_DISPATCH_HELPER(kmeal,
                               (setuprest)
-                              (createbook)(delbook)(opendeposit)(closedeposit)(depositkmeal)(addsections)(addtosection)(listitem)
-                              (createitem)(edititem)(delitem)(setsecorder)(delsec)(delrest)(placeorder)(accept)(removefromsec)(cleartables)
+                              (opendeposit)(closedeposit)(depositkmeal)(addsections)(listitem)
+                              (createitem)(edititem)(delitem)(setsecorder)(delsec)(delrest)(placeorder)(accept)(cleartables)
                               )
       }
     }
