@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Aug 16 18:36:18 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Sep 26 22:22:15 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -446,6 +446,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "start_time",
+                    "type": "time_point_sec"
+                },
+                {
                     "name": "expires",
                     "type": "time_point_sec"
                 },
@@ -468,8 +472,8 @@
             "base": "",
             "fields": [
                 {
-                    "name": "item_id",
-                    "type": "uint64"
+                    "name": "name",
+                    "type": "string"
                 },
                 {
                     "name": "group",
@@ -512,6 +516,10 @@
                 {
                     "name": "quantity",
                     "type": "uint64"
+                },
+                {
+                    "name": "start_time",
+                    "type": "time_point_sec"
                 },
                 {
                     "name": "expires",
@@ -782,6 +790,10 @@
                 {
                     "name": "is_active",
                     "type": "uint8"
+                },
+                {
+                    "name": "categories",
+                    "type": "string[]"
                 }
             ]
         },
@@ -1072,7 +1084,7 @@
             "key_types": []
         },
         {
-            "name": "sec",
+            "name": "secs",
             "type": "sec",
             "index_type": "i64",
             "key_names": [],

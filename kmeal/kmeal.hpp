@@ -89,7 +89,6 @@ private:
     string logo;
     string timeofoperation;
     vector<string> categories;
-
     uint8_t is_active;
 
     uint64_t primary_key() const { return owner.value; }
@@ -97,7 +96,7 @@ private:
   };
 
   typedef multi_index<"restaurants"_n, restaurant> restaurants_table;
-
+  
   TABLE arbiter
   {
     name account;
@@ -161,16 +160,19 @@ private:
     
     
     uint64_t get_owner()const  { return  owner.value; }    // 2
+    
+    
+    vector<string> categories;
   };
   
   
-  typedef multi_index<"sec"_n, sec,
+  typedef multi_index<"secs"_n, sec,
   indexed_by<"secbyowner"_n,    const_mem_fun<sec, uint64_t, &sec::get_owner>>
   > sec_table;
 
   struct listing_sides
   {
-    uint64_t item_id;
+    string name;
     string group;
     uint64_t max_selection;
     float list_price;
@@ -187,6 +189,7 @@ private:
     float min_price;
     uint64_t quantity;
     uint64_t sliding_rate;
+    time_point_sec start_time;
     time_point_sec expires;
     uint64_t status;
     vector<listing_sides> sides;
@@ -215,7 +218,7 @@ private:
                       indexed_by<"byprice"_n, const_mem_fun<listing, uint128_t, &listing::get_price>>
                       >
       listings_table;
-
+      
   TABLE orderdetail
   {
     uint64_t order_detail_id;
@@ -383,6 +386,7 @@ public:
       float list_price,
       float min_price,
       uint64_t quantity,
+      time_point_sec start_time,
       uint32_t expires,
       float sliding_rate,
       vector<listing_sides> sides);

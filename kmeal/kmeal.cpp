@@ -11,9 +11,9 @@ void kmeal::cleartables()
   require_auth(_self);
   cleanTable<listings_table>();
   cleanTable<items_table>();  
-  cleanTable<sec_table>();
-  cleanTable<restaurants_table>();
-  cleanTable<accounts_table>();
+   cleanTable<sec_table>();
+   cleanTable<restaurants_table>();
+   cleanTable<accounts_table>();
 }
 
 void kmeal::setuprest(const name account,
@@ -31,7 +31,8 @@ void kmeal::setuprest(const name account,
                       const vector<string> categories,
                       const string timeofoperation)
 {
-  require_auth(_self);
+  require_auth(account);
+  //require_auth(_self);
   eosio_assert(is_account(account), "account does not exist");
   eosio_assert(name.length() > 0, "name cannot be empty");
   eosio_assert(phone.length() > 0, "phone cannot be empty");
@@ -97,43 +98,42 @@ void kmeal::editrest(const name account,
                       const vector<string> categories,
                       const string timeofoperation)
 {
+  require_auth(account);
+  eosio_assert(is_account(account), "account does not exist");
+  eosio_assert(name.length() > 0, "name cannot be empty");
+  eosio_assert(phone.length() > 0, "phone cannot be empty");
+  eosio_assert(address.length() > 0, "address cannot be empty");
+  
   eosio::print(account.value);
-  // require_auth(account);
-  // eosio_assert(is_account(account), "account does not exist");
-  // eosio_assert(name.length() > 0, "name cannot be empty");
-  // eosio_assert(phone.length() > 0, "phone cannot be empty");
-  // eosio_assert(address.length() > 0, "address cannot be empty");
+  // eosio_assert(address2.length() > 0, "address cannot be empty");
   
-  // eosio::print(account.value);
-  // // eosio_assert(address2.length() > 0, "address cannot be empty");
+  //todos other validation
+  //assign permission for owner to onboard..
   
-  // //todos other validation
-  // //assign permission for owner to onboard..
-  
-  // auto setter = [&](auto &s) {
-  //   s.owner = account;
-  //   s.name = name;
-  //   s.description = description;
-  //   s.phone = phone;
-  //   s.address = address;
-  //   s.address2 = address2;
-  //   s.city = city;
-  //   s.state = state;
-  //   s.postalCode = postalCode;
-  //   s.latitude = latitude;
-  //   s.longitude = longitude;
-  //   s.logo = logo;
-  //   s.categories = categories;
-  //   s.timeofoperation = timeofoperation;
-  //   s.is_active = 1;
-  // };
+  auto setter = [&](auto &s) {
+    s.owner = account;
+    s.name = name;
+    s.description = description;
+    s.phone = phone;
+    s.address = address;
+    s.address2 = address2;
+    s.city = city;
+    s.state = state;
+    s.postalCode = postalCode;
+    s.latitude = latitude;
+    s.longitude = longitude;
+    s.logo = logo;
+    s.categories = categories;
+    s.timeofoperation = timeofoperation;
+    s.is_active = 1;
+  };
 
-  // auto _restaurant = restaurants.find(account.value);
-  // eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
-  // if (_restaurant != restaurants.end())
-  // {
-  //   restaurants.modify(*_restaurant, account, setter);
-  // }
+  auto _restaurant = restaurants.find(account.value);
+  eosio_assert(_restaurant != restaurants.end(), "restaurant not found");
+  if (_restaurant != restaurants.end())
+  {
+    restaurants.modify(*_restaurant, account, setter);
+  }
 }
 
 void kmeal::delrest(name account)
@@ -281,6 +281,7 @@ void kmeal::addsections(const name account, const string sectionname)
       float list_price,
       float min_price,
       uint64_t quantity,
+      time_point_sec start_time,
       uint32_t expires,
       float sliding_rate,
       vector<listing_sides> sides)
@@ -309,6 +310,7 @@ void kmeal::addsections(const name account, const string sectionname)
         if (list_type != REGULAR_LIST_TYPE_FLAG) {
           s.min_price = min_price;
           s.quantity = quantity;
+          s.start_time = start_time;
           s.expires = time_point_sec(now()) + expires;
         }
         s.sliding_rate = sliding_rate;
