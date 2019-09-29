@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Sep 26 22:22:15 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Sep 29 18:24:56 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -406,6 +406,48 @@
             ]
         },
         {
+            "name": "listdpitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "item_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "section_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "list_price",
+                    "type": "float32"
+                },
+                {
+                    "name": "min_price",
+                    "type": "float32"
+                },
+                {
+                    "name": "quantity",
+                    "type": "uint64"
+                },
+                {
+                    "name": "start_time",
+                    "type": "time_point_sec"
+                },
+                {
+                    "name": "expires",
+                    "type": "uint32"
+                },
+                {
+                    "name": "sliding_rate",
+                    "type": "float32"
+                },
+                {
+                    "name": "sides",
+                    "type": "listing_sides[]"
+                }
+            ]
+        },
+        {
             "name": "listing",
             "base": "",
             "fields": [
@@ -502,31 +544,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "list_type",
-                    "type": "uint64"
-                },
-                {
                     "name": "list_price",
-                    "type": "float32"
-                },
-                {
-                    "name": "min_price",
-                    "type": "float32"
-                },
-                {
-                    "name": "quantity",
-                    "type": "uint64"
-                },
-                {
-                    "name": "start_time",
-                    "type": "time_point_sec"
-                },
-                {
-                    "name": "expires",
-                    "type": "uint32"
-                },
-                {
-                    "name": "sliding_rate",
                     "type": "float32"
                 },
                 {
@@ -988,6 +1006,11 @@
         {
             "name": "goodsrcvd",
             "type": "goodsrcvd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "listdpitem",
+            "type": "listdpitem",
             "ricardian_contract": ""
         },
         {

@@ -379,10 +379,16 @@ public:
 
   ACTION edititem(uint64_t itemid, string itemname, string description, string photo, uint64_t spicy_level, uint64_t vegetarian, uint64_t cooking_time, vector<string> types);
   
+      
   ACTION listitem(
       uint64_t item_id,
       uint64_t section_id,
-      uint64_t list_type,
+      float list_price,
+      vector<listing_sides> sides);
+      
+  ACTION listdpitem(
+      uint64_t item_id,
+      uint64_t section_id,
       float list_price,
       float min_price,
       uint64_t quantity,
@@ -390,6 +396,7 @@ public:
       uint32_t expires,
       float sliding_rate,
       vector<listing_sides> sides);
+      
       
   ACTION deletelisting(uint64_t listing_id);
 

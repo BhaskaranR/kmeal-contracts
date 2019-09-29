@@ -274,10 +274,10 @@ void kmeal::addsections(const name account, const string sectionname)
   }
   
   
-  void kmeal::listitem(
+  
+  void kmeal::listdpitem(
       uint64_t item_id,
       uint64_t section_id,
-      uint64_t list_type,
       float list_price,
       float min_price,
       uint64_t quantity,
@@ -305,16 +305,48 @@ void kmeal::addsections(const name account, const string sectionname)
         s.listing_id = listings.available_primary_key();
         s.item_id = item_id;
         s.section_id = section_id;
-        s.list_type = list_type;
+        s.list_type = DYNAMIC_LIST_TYPE_FLAG;
         s.list_price = list_price;
-        if (list_type != REGULAR_LIST_TYPE_FLAG) {
-          s.min_price = min_price;
-          s.quantity = quantity;
-          s.start_time = start_time;
-          s.expires = time_point_sec(now()) + expires;
-        }
+        s.min_price = min_price;
+        s.quantity = quantity;
+        s.start_time = start_time;
+        s.expires = start_time + expires;
         s.sliding_rate = sliding_rate;
         s.status = 1;
+        s.sides = sides;
+        s.isactive = 1;
+      });
+    }
+  }
+  
+  
+  void kmeal::listitem(
+      uint64_t item_id,
+      uint64_t section_id,
+      float list_price,
+      vector<listing_sides> sides)
+  {
+  
+    //auth the owner of the item
+    auto _item = items.find(item_id);
+    eosio_assert(_item != items.end(), "item not found");
+    require_auth(_item->owner.value);
+  
+    auto secItr = sections.find(section_id);
+    eosio_assert(secItr != sections.end(), "section does not exist.");
+    require_auth(secItr->owner.value);
+  
+    //TODO validation for the listings
+    auto _listings = listings.find(_item->owner.value);
+    
+    if (_listings == listings.end())
+    {
+      listings.emplace(_self, [&](auto &s) {
+        s.listing_id = listings.available_primary_key();
+        s.item_id = item_id;
+        s.section_id = section_id;
+        s.list_type = REGULAR_LIST_TYPE_FLAG;
+        s.list_price = list_price;
         s.sides = sides;
         s.isactive = 1;
       });
